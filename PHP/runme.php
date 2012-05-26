@@ -38,7 +38,7 @@ while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
         $usedEventData   = array();
     }
     
-    writeToFile($sqlOutputSAIs, '-- Entry ' . $previousNpcId . ' ' . $currentNpcName . ' SAI');
+    writeToFile($sqlOutputSAIs, '-- ' . $currentNpcName . ' SAI');
     writeToFile($sqlOutputSAIs, 'SET @ENTRY := ' . $previousNpcId . ';');
     writeToFile($sqlOutputSAIs, 'UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;');
     writeToFile($sqlOutputSAIs, 'DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;');
