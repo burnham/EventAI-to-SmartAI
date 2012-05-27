@@ -15,7 +15,8 @@ try {
     die("Error while connecting to the database. Message sent by PDO: " . $e->getMessage());
 }
 
-$EAIDataSet = $pdo->query("SELECT * FROM creature_ai_scripts ORDER BY id");
+# Debug - limit to 50 for developping purposes
+$EAIDataSet = $pdo->query("SELECT * FROM creature_ai_scripts ORDER BY id LIMIT 500");
 
 # Create files
 $sqlOutputSAIs = fopen('./eai2sai' . ($withDate ? '-' . date() : '')  . '.sql', 'a');
@@ -24,22 +25,20 @@ $textsOutput   = fopen('./eai2saiTexts-' . ($withDate ? '-' . date() : '')  . '.
 writeToFile($textsOutput, "-- Deleting all entries from creature_ai_texts");
 writeToFile($textsOutput, "TRUNCATE TABLE `creature_ai_texts`;");
 
-$currentNpcName  = ""; // Save the last iterated NPC name
-$previousNpcId   = 0;   // And its index in the table.
+$NPC_NAME        = ""; // Save the last iterated NPC name
+$NPC_ID          = 0;   // And its entry in the table.
 $currentRowIndex = 0;
 $usedEventData   = array(); // Used to detect linking
 
 while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
     // Prevent calling the NPC's name on each iteration
-    if ($previousNpcId != $eaiItem->creature_id) {
-        $currentNpcName  = $pdo->query('SELECT name FROM creature_template WHERE entry = ' . $eaiItem->creature_id)->fetch(PDO::FETCH_OBJ)->name;
-        $previousNpcId   = $eaiItem->creature_id;
-        $currentRowIndex = 0;
-        $usedEventData   = array();
+    if ($NPC_ID != $eaiItem->creature_id) {
+        $NPC_NAME  = $pdo->query('SELECT name FROM creature_template WHERE entry = ' . $eaiItem->creature_id)->fetch(PDO::FETCH_OBJ)->name;
+        $NPC_ID   = $eaiItem->creature_id;
     }
     
-    writeToFile($sqlOutputSAIs, '-- ' . $currentNpcName . ' SAI');
-    writeToFile($sqlOutputSAIs, 'SET @ENTRY := ' . $previousNpcId . ';');
+    writeToFile($sqlOutputSAIs, '-- ' . $NPC_NAME . ' SAI');
+    writeToFile($sqlOutputSAIs, 'SET @ENTRY := ' . $NPC_ID . ';');
     writeToFile($sqlOutputSAIs, 'UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;');
     writeToFile($sqlOutputSAIs, 'DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;');
     writeToFile($sqlOutputSAIs, 'DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;');
@@ -91,69 +90,27 @@ while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
             break;            
     }
     
-    # Parse texts
-    $creatureAITexts = $pdo->query("SELECT * FROM creature_ai_texts WHERE entry IN (${param1}, ${param2}, ${param3})");
-    $textId = 0;
-    $groupId = 0;
-    $creatureTexts = array();
-    
-    writeToFile($textsOutput, '-- Texts for NPC ' . $previousNpcId . ' - ' . $currentNpcName);
-    writeToFile($textsOutput, 'SET @ENTRY := ' . $previousNpcId . ';');
-    writeToFile($textsOutput, 'DELETE FROM `creature_text` WHERE `entry`=' . $previousNpcId . ';');
-    
-    while ($creatureText = $creatureAITexts->fetch(PDO::FETCH_OBJ)) {
-        $creatureTexts[$textId++] = array();
-        $creatureTexts[$textId]['entry']    = '@ENTRY';
-        $creatureTexts[$textId]['id']       = $textId;
-        $creatureTexts[$textId]['groupid']  = $groupId;
-        $creatureTexts[$textId]['sound']    = $creatureText->sound;
-        $creatureTexts[$textId]['comment']  = $creatureText->comment;
-        $creatureTexts[$textId]['emote']    = $creatureText->emote;
-        $creatureTexts[$textId]['language'] = $creatureText->language;
-        $creatureTexts[$textId]['probability'] = 100;
-        $creatureTexts[$textId]['duration'] = 0;
-
-        switch ($creatureText->type)
-        {
-            case 0:
-            case 1:
-            case 2:
-                $creatureTexts[$textId]['type'] = 12 + $creatureText->type * 2;
-                break;
-            case 3:
-                $creatureTexts[$textId]['type'] = 41;
-                break;
-            case 4:
-                $creatureTexts[$textId]['type'] = 15;
-                break;
-            case 5:
-                $creatureTexts[$textId]['type'] = 42; // YOU WIN
-                break;
-            case 6:
-                // @Horn: Why this ?
-                if ($creatureText->entry == -544)
-                    $creatureTexts[$textId]['type'] = 16;
-                else if ($creatureText->entry == -860)
-                    $creatureTexts[$textId]['type'] = 12;
-                break;
-        }
-        
-        writeCreatureText($creatureTexts[$textId], $textId, $creatureAITexts->rowCount(), $textsOutput);
-    }
-    
+    $textsParsed = false;
     # Parsing actions here
-    for ($i = 1; $i <= 4; $i++) {
+    for ($i = 1; $i < 4; $i++) {
         $currentAction = $eaiItem->{'action' . $i . '_type'};
         $param1 = $eaiItem->{'action' . $i . '_param1'};
         $param2 = $eaiItem->{'action' . $i . '_param2'};
         $param3 = $eaiItem->{'action' . $i . '_param3'};
-        $param4 = $eaiItem->{'action' . $i . '_param4'};
         
         switch ($currentAction)
         {
             case ACTION_T_TEXT:
             {
+                if ($textsParsed) // Avoid reading texts on every talk action
+                    break;
+                    
+                //! We are going to assign groupIDs and textIDs here
+                $npcTexts1 = parseTexts($pdo, $textsOutput, $NPC_ID, $NPC_NAME, $param1);
+                $npcTexts2 = parseTexts($pdo, $textsOutput, $NPC_ID, $NPC_NAME, $param2);
+                $npcTexts3 = parseTexts($pdo, $textsOutput, $NPC_ID, $NPC_NAME, $param3);
                 
+                $textsParsed = true;
             }
             default:
                 break;
