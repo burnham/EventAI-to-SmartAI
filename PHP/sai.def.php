@@ -96,3 +96,105 @@ define('SMART_EVENT_FLAG_DONT_RESET',         0x100); // Event will not reset in
 
 define('SMART_EVENT_FLAG_DIFFICULTY_ALL',     (SMART_EVENT_FLAG_DIFFICULTY_0|SMART_EVENT_FLAG_DIFFICULTY_1|SMART_EVENT_FLAG_DIFFICULTY_2|SMART_EVENT_FLAG_DIFFICULTY_3));
 define('SMART_EVENT_FLAGS_ALL',               (SMART_EVENT_FLAG_NOT_REPEATABLE|SMART_EVENT_FLAG_DIFFICULTY_ALL|SMART_EVENT_FLAG_RESERVED_5|SMART_EVENT_FLAG_RESERVED_6|SMART_EVENT_FLAG_DEBUG_ONLY|SMART_EVENT_FLAG_DONT_RESET));
+
+define('SMART_ACTION_NONE',                               0);  // No action
+define('SMART_ACTION_TALK',                               1);  // groupID from creature_text, duration to wait before TEXT_OVER event is triggered
+define('SMART_ACTION_SET_FACTION',                        2);  // FactionId (or 0 for default)
+define('SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL',            3);  // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to demorph)
+define('SMART_ACTION_SOUND',                              4);  // SoundId, TextRange
+define('SMART_ACTION_PLAY_EMOTE',                         5);  // EmoteId
+define('SMART_ACTION_FAIL_QUEST',                         6);  // QuestID
+define('SMART_ACTION_ADD_QUEST',                          7);  // QuestID
+define('SMART_ACTION_SET_REACT_STATE',                    8);  // state
+define('SMART_ACTION_ACTIVATE_GOBJECT',                   9);  //
+define('SMART_ACTION_RANDOM_EMOTE',                       10); // EmoteId1, EmoteId2, EmoteId3...
+define('SMART_ACTION_CAST',                               11); // SpellId, CastFlags
+define('SMART_ACTION_SUMMON_CREATURE',                    12); // CreatureID, summonType, duration in ms, storageID, attackInvoker,
+define('SMART_ACTION_THREAT_SINGLE_PCT',                  13); // Threat%
+define('SMART_ACTION_THREAT_ALL_PCT',                     14); // Threat%
+define('SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS',    15); // QuestID
+define('SMART_ACTION_SEND_CASTCREATUREORGO',              16); // QuestID, SpellId
+define('SMART_ACTION_SET_EMOTE_STATE',                    17); // emoteID
+define('SMART_ACTION_SET_UNIT_FLAG',                      18); // Flags (may be more than one field OR'd together), Target
+define('SMART_ACTION_REMOVE_UNIT_FLAG',                   19); // Flags (may be more than one field OR'd together), Target
+define('SMART_ACTION_AUTO_ATTACK',                        20); // AllowAttackState (0 = stop attack, anything else means continue attacking)
+define('SMART_ACTION_ALLOW_COMBAT_MOVEMENT',              21); // AllowCombatMovement (0 = stop combat based movement, anything else continue attacking)
+define('SMART_ACTION_SET_EVENT_PHASE',                    22); // Phase
+define('SMART_ACTION_INC_EVENT_PHASE',                    23); // Value (may be negative to decrement phase, should not be 0)
+define('SMART_ACTION_EVADE',                              24); // No Params
+define('SMART_ACTION_FLEE_FOR_ASSIST',                    25); // With Emote
+define('SMART_ACTION_CALL_GROUPEVENTHAPPENS',             26); // QuestID
+define('SMART_ACTION_CALL_CASTEDCREATUREORGO',            27); // CreatureId, SpellId
+define('SMART_ACTION_REMOVEAURASFROMSPELL',               28); // Spellid
+define('SMART_ACTION_FOLLOW',                             29); // Distance (0 = default), Angle (0 = default), EndCreatureEntry, credit, creditType (0monsterkill, 1event)
+define('SMART_ACTION_RANDOM_PHASE',                       30); // PhaseId1, PhaseId2, PhaseId3...
+define('SMART_ACTION_RANDOM_PHASE_RANGE',                 31); // PhaseMin, PhaseMax
+define('SMART_ACTION_RESET_GOBJECT',                      32); //
+define('SMART_ACTION_CALL_KILLEDMONSTER',                 33); // CreatureId,
+define('SMART_ACTION_SET_INST_DATA',                      34); // Field, Data
+define('SMART_ACTION_SET_INST_DATA64',                    35); // Field,
+define('SMART_ACTION_UPDATE_TEMPLATE',                    36); // Entry, Team
+define('SMART_ACTION_DIE',                                37); // No Params
+define('SMART_ACTION_SET_IN_COMBAT_WITH_ZONE',            38); // No Params
+define('SMART_ACTION_CALL_FOR_HELP',                      39); // Radius
+define('SMART_ACTION_SET_SHEATH',                         40); // Sheath (0-unarmed, 1-melee, 2-ranged)
+define('SMART_ACTION_FORCE_DESPAWN',                      41); // timer
+define('SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL',         42); // MinHpValue(+pct, -flat)
+define('SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL',            43); // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to dismount)
+define('SMART_ACTION_SET_INGAME_PHASE_MASK',              44); // mask
+define('SMART_ACTION_SET_DATA',                           45); // Field, Data (only creature TODO)
+define('SMART_ACTION_MOVE_FORWARD',                       46); // distance
+define('SMART_ACTION_SET_VISIBILITY',                     47); // on/off
+define('SMART_ACTION_SET_ACTIVE',                         48); // No Params
+define('SMART_ACTION_ATTACK_START',                       49); //
+define('SMART_ACTION_SUMMON_GO',                          50); // GameObjectID, DespawnTime in ms,
+define('SMART_ACTION_KILL_UNIT',                          51); //
+define('SMART_ACTION_ACTIVATE_TAXI',                      52); // TaxiID
+define('SMART_ACTION_WP_START',                           53); // run/walk, pathID, canRepeat, quest, despawntime, reactState
+define('SMART_ACTION_WP_PAUSE',                           54); // time
+define('SMART_ACTION_WP_STOP',                            55); // despawnTime, quest, fail?
+define('SMART_ACTION_ADD_ITEM',                           56); // itemID, count
+define('SMART_ACTION_REMOVE_ITEM',                        57); // itemID, count
+define('SMART_ACTION_INSTALL_AI_TEMPLATE',                58); // AITemplateID
+define('SMART_ACTION_SET_RUN',                            59); // 0/1
+define('SMART_ACTION_SET_FLY',                            60); // 0/1
+define('SMART_ACTION_SET_SWIM',                           61); // 0/1
+define('SMART_ACTION_TELEPORT',                           62); // mapID,
+define('SMART_ACTION_STORE_VARIABLE_DECIMAL',             63); // varID, number
+define('SMART_ACTION_STORE_TARGET_LIST',                  64); // varID,
+define('SMART_ACTION_WP_RESUME',                          65); // none
+define('SMART_ACTION_SET_ORIENTATION',                    66); //
+define('SMART_ACTION_CREATE_TIMED_EVENT',                 67); // id, InitialMin, InitialMax, RepeatMin(only if it repeats), RepeatMax(only if it repeats), chance
+define('SMART_ACTION_PLAYMOVIE',                          68); // entry
+define('SMART_ACTION_MOVE_TO_POS',                        69); // PointId, xyz
+define('SMART_ACTION_RESPAWN_TARGET',                     70); //
+define('SMART_ACTION_EQUIP',                              71); // entry, slotmask slot1, slot2, slot3   , only slots with mask set will be sent to client, bits are 1, 2, 4, leaving mask 0 is defaulted to mask 7 (send all), slots1-3 are only used if no entry is set
+define('SMART_ACTION_CLOSE_GOSSIP',                       72); // none
+define('SMART_ACTION_TRIGGER_TIMED_EVENT',                73); // id(>1)
+define('SMART_ACTION_REMOVE_TIMED_EVENT',                 74); // id(>1)
+define('SMART_ACTION_ADD_AURA',                           75); // spellid,  targets
+define('SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT',        76); // WARNING: CAN CRASH CORE, do not use if you dont know what you are doing
+define('SMART_ACTION_RESET_SCRIPT_BASE_OBJECT',           77); // none
+define('SMART_ACTION_CALL_SCRIPT_RESET',                  78); // none
+define('SMART_ACTION_CALL_TIMED_ACTIONLIST',              80); // ID (overwrites already running actionlist), stop after combat?(0/1), timer update type(0-OOC, 1-IC, 2-ALWAYS)
+define('SMART_ACTION_SET_NPC_FLAG',                       81); // Flags
+define('SMART_ACTION_ADD_NPC_FLAG',                       82); // Flags
+define('SMART_ACTION_REMOVE_NPC_FLAG',                    83); // Flags
+define('SMART_ACTION_SIMPLE_TALK',                        84); // groupID, can be used to make players say groupID, Text_over event is not triggered, whisper can not be used (Target units will say the text)
+define('SMART_ACTION_INVOKER_CAST',                       85); // spellID, castFlags,   if avaliable, last used invoker will cast spellId with castFlags on targets
+define('SMART_ACTION_CROSS_CAST',                         86); // spellID, castFlags, CasterTargetType, CasterTarget param1, CasterTarget param2, CasterTarget param3, ( + the origonal target fields as Destination target),   CasterTargets will cast spellID on all Targets (use with caution if targeting multiple * multiple units)
+define('SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST',       87); // script9 ids 1-9
+define('SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST', 88); // script9 id min, max
+define('SMART_ACTION_RANDOM_MOVE',                        89); // maxDist
+define('SMART_ACTION_SET_UNIT_FIELD_BYTES_1',             90); // bytes, target
+define('SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1',          91); // bytes, target
+define('SMART_ACTION_INTERRUPT_SPELL',                    92);
+define('SMART_ACTION_SEND_GO_CUSTOM_ANIM',                93); // anim id
+define('SMART_ACTION_SET_DYNAMIC_FLAG',                   94); // Flags
+define('SMART_ACTION_ADD_DYNAMIC_FLAG',                   95); // Flags
+define('SMART_ACTION_REMOVE_DYNAMIC_FLAG',                96); // Flags
+define('SMART_ACTION_JUMP_TO_POS',                        97); // speedXY, speedZ, targetX, targetY, targetZ
+define('SMART_ACTION_SEND_GOSSIP_MENU',                   98); // menuId, optionId
+define('SMART_ACTION_GO_SET_LOOT_STATE',                  99); // state
+define('SMART_ACTION_SEND_TARGET_TO_TARGET',              100);// id
+define('SMART_ACTION_END',                                101);
