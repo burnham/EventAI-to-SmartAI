@@ -5,7 +5,7 @@ require_once('./sai.def.php');
 
 class Utils
 {
-    /* boolean */ static function hasParameters($eventId) {
+    static function hasParameters($eventId) {
         switch ($eventId)
         {
             case SMART_EVENT_AGGRO:
@@ -32,100 +32,127 @@ class Utils
                 return true;
         }
     }
-}
-
-function writeToFile($file, $str)
-{
-    fwrite($file, $str . PHP_EOL);
-}
-
-function SAI2EAIFlag($flag)
-{
-    // Rather than making shitty stuff, lets do it plain.
-    $output = 0;
-    if (!($flag & EFLAG_REPEATABLE))
-        $output |= SMART_EVENT_FLAG_NOT_REPEATABLE;
-        
-    if ($flag & EFLAG_DIFFICULTY_0)
-        $output |= SMART_EVENT_FLAG_DIFFICULTY_0;
     
-    if ($flag & EFLAG_DIFFICULTY_1)
-        $output |= SMART_EVENT_FLAG_DIFFICULTY_1;
-
-    if ($flag & EFLAG_DIFFICULTY_2)
-        $output |= SMART_EVENT_FLAG_DIFFICULTY_2;
-
-    if ($flag & EFLAG_DIFFICULTY_3)
-        $output |= SMART_EVENT_FLAG_DIFFICULTY_3;
-
-    if ($flag & EFLAG_DEBUG_ONLY)
-        $output |= SMART_EVENT_FLAG_DEBUG_ONLY;
-    
-    return $output;
-}
-
-function writeCreatureText($data, $id, $size, $stream)
-{
-    $withHeader = ($id == 0);
-    $data['comment'] = '"' . addslashes($data['comment']) . '"';
-
-    $headerFields = implode('`, `', array_keys($data));
-    $entry = implode(', ', array_values($data));
-    
-    $string = '(' . $entry . ')';
-    if ($withHeader)
-        $string = 'INSERT INTO `creature_text` (' . $headerFields . ') VALUES' . PHP_EOL . $string;
-    
-    if ($id == $size)
-        $string .= ';';
-    else
-        $string .= ',';
-    
-    writeToFile($stream, $string);
-}
-
-function parseTexts($pdo, $outputFile, $npcId, $npcName, $param1)
-{
-    writeToFile($outputFile, '-- Texts for NPC ' . $npcName);
-    writeToFile($outputFile, 'SET @ENTRY := ' . $npcId . ';');
-    writeToFile($outputFile, 'DELETE FROM `creature_text` WHERE `entry`=' . $npcId . ';');
-
-    $creatureAITexts = $pdo->query("SELECT * FROM creature_ai_texts WHERE entry = " . $param1);
-    $textId = 0;
-    $groupId = 0;
-    $creatureTexts = array();
-    
-    while ($creatureText = $creatureAITexts->fetch(PDO::FETCH_OBJ)) {
-        switch ($creatureText->type)
-        {
-            case 0:
-            case 1:
-            case 2:
-                $creatureTexts[$textId] = new CreatureText($npcId, $textId, $groupId, $creatureText->sound, $npcName, $creatureText->emote, $creatureText->language, 100, 0, 12 + $creatureText->type * 2);
-                break;
-            case 3:
-                $creatureTexts[$textId] = new CreatureText($npcId, $textId, $groupId, $creatureText->sound, $npcName, $creatureText->emote, $creatureText->language, 100, 0, 41);
-                break;
-            case 4:
-                $creatureTexts[$textId] = new CreatureText($npcId, $textId, $groupId, $creatureText->sound, $npcName, $creatureText->emote, $creatureText->language, 100, 0, 15);
-                break;
-            case 5:
-                $creatureTexts[$textId] = new CreatureText($npcId, $textId, $groupId, $creatureText->sound, $npcName, $creatureText->emote, $creatureText->language, 100, 0, 42);
-                break;
-            case 6:
-                if ($creatureText->entry == -544)
-                    $creatureTexts[$textId] = new CreatureText($npcId, $textId, $groupId, $creatureText->sound, $npcName, $creatureText->emote, $creatureText->language, 100, 0, 16);
-                else if ($creatureText->entry == -860)
-                    $creatureTexts[$textId] = new CreatureText($npcId, $textId, $groupId, $creatureText->sound, $npcName, $creatureText->emote, $creatureText->language, 100, 0, 12);
-                break;
-        }
-        $creatureTexts[$textId]->setText($creatureText->content_default);
-        $textId++;
+    static function writeToFile($file, $str)
+    {
+        fwrite($file, $str . PHP_EOL);
     }
     
-    # -- Debug code
-    foreach ($creatureTexts as $itm)
-        echo $itm. "<br />";
+    static function SAI2EAIFlag($flag)
+    {
+        // Rather than making shitty stuff, lets do it plain.
+        $output = 0;
+        if (!($flag & EFLAG_REPEATABLE))
+            $output |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+            
+        if ($flag & EFLAG_DIFFICULTY_0)
+            $output |= SMART_EVENT_FLAG_DIFFICULTY_0;
+        
+        if ($flag & EFLAG_DIFFICULTY_1)
+            $output |= SMART_EVENT_FLAG_DIFFICULTY_1;
+
+        if ($flag & EFLAG_DIFFICULTY_2)
+            $output |= SMART_EVENT_FLAG_DIFFICULTY_2;
+
+        if ($flag & EFLAG_DIFFICULTY_3)
+            $output |= SMART_EVENT_FLAG_DIFFICULTY_3;
+
+        if ($flag & EFLAG_DEBUG_ONLY)
+            $output |= SMART_EVENT_FLAG_DEBUG_ONLY;
+        
+        return $output;
+    }
+
+    static function convertEventToSAI($eventId) {
+        switch ($eventId)
+        {
+            case EVENT_T_TIMER:
+                return SMART_EVENT_UPDATE_IC;
+            case EVENT_T_TIMER_OOC:
+                return SMART_EVENT_UPDATE_OOC;
+            case EVENT_T_HP:
+                return SMART_EVENT_HEALT_PCT;
+            case EVENT_T_MANA:
+                return SMART_EVENT_MANA_PCT;
+            case EVENT_T_AGGRO:
+                return SMART_EVENT_AGGRO;
+            case EVENT_T_KILL:
+                return SMART_EVENT_KILL;
+            case EVENT_T_DEATH:
+                return SMART_EVENT_DEATH;
+            case EVENT_T_EVADE:
+                return SMART_EVENT_EVADE;
+            case EVENT_T_SPELLHIT:
+                return SMART_EVENT_SPELLHIT;
+            case EVENT_T_RANGE:
+                return SMART_EVENT_RANGE;
+            case EVENT_T_OOC_LOS:
+                return SMART_EVENT_OOC_LOS;
+            case EVENT_T_SPAWNED:
+                return SMART_EVENT_RESPAWN;
+            case EVENT_T_TARGET_CASTING:
+                return SMART_EVENT_TARGET_CASTING;
+            case EVENT_T_TARGET_HP:
+                return SMART_EVENT_TARGET_HEALTH_PCT;
+            case EVENT_T_FRIENDLY_HP:
+                return SMART_EVENT_FRIENDLY_HEALTH;
+            case EVENT_T_FRIENDLY_IS_CC:
+                return SMART_EVENT_FRIENDLY_IS_CC;
+            case EVENT_T_FRIENDLY_MISSING_BUFF:
+                return SMART_EVENT_FRIENDLY_MISSING_BUFF;
+            case EVENT_T_SUMMONED_UNIT:
+                return SMART_EVENT_SUMMONED_UNIT;
+            case EVENT_T_TARGET_MANA:
+                return SMART_EVENT_TARGET_MANA_PCT;
+            case EVENT_T_QUEST_ACCEPT:
+                return SMART_EVENT_ACCEPTED_QUEST;
+            case EVENT_T_QUEST_COMPLETE:
+                return SMART_EVENT_REWARD_QUEST;
+            case EVENT_T_REACHED_HOME:
+                return SMART_EVENT_REACHED_HOME;
+            case EVENT_T_RECEIVE_EMOTE:
+                return SMART_EVENT_RECEIVE_EMOTE;
+            case EVENT_T_BUFFED:
+                return SMART_EVENT_HAS_AURA;
+            case EVENT_T_TARGET_BUFFED:
+                return SMART_EVENT_TARGET_BUFFED;
+            case EVENT_T_RESET:
+                return SMART_EVENT_RESET;
+            default:
+                return SMART_EVENT_END;
+        }
+    }
     
-    return $creatureTexts;
+    static function convertParamsToSAI($eaiItem) {
+        $data = array();
+        switch ($eaiItem->event_type)
+        {
+            case EVENT_T_HP:
+            case EVENT_T_MANA:
+            case EVENT_T_TARGET_HP:
+                $data[1] = $eaiItem->event_param2;
+                $data[2] = $eaiItem->event_param1;
+                $data[3] = $eaiItem->event_param3;
+                $data[4] = $eaiItem->event_param4;
+                break;
+            case EVENT_T_FRIENDLY_HP:
+                $data[1] = 0;
+                $data[2] = $eaiItem->event_param2;
+                $data[3] = $eaiItem->event_param3;
+                $data[4] = $eaiItem->event_param4;
+                break;
+            case EVENT_T_RECEIVE_EMOTE: // SAI'S SMART_EVENT_RECEIVE_EMOTE doesn't have the same structure at all. Fixme!
+                $data[1] = $eaiItem->event_param1;
+                $data[2] = $data[3] = 1000;
+                $data[4] = 0;
+                break;
+            default:
+                $data[1] = $eaiItem->event_param1;
+                $data[2] = $eaiItem->event_param2;
+                $data[3] = $eaiItem->event_param3;
+                $data[4] = $eaiItem->event_param4;
+                break;            
+        }
+        return array_map('intval', $data);
+    }
 }

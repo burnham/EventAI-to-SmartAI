@@ -59,36 +59,6 @@ while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
     $data['event_chance'] = $eaiItem->event_chance;
     $data['event_flags']  = SAI2EAIFlag($eaiItem->event_flags);
     
-    // Thanks Horn for this.
-    switch ($data['event_type'])
-    {
-        case EVENT_T_HP:
-        case EVENT_T_MANA:
-        case EVENT_T_TARGET_HP:
-            $data['event_param1'] = $eaiItem->event_param2;
-            $data['event_param2'] = $eaiItem->event_param1;
-            $data['event_param3'] = $eaiItem->event_param3;
-            $data['event_param4'] = $eaiItem->event_param4;
-            break;
-        case EVENT_T_FRIENDLY_HP:
-            $data['event_param1'] = 0;
-            $data['event_param2'] = $eaiItem->event_param2;
-            $data['event_param3'] = $eaiItem->event_param3;
-            $data['event_param4'] = $eaiItem->event_param4;
-            break;
-        case EVENT_T_RECEIVE_EMOTE: // SAI'S SMART_EVENT_RECEIVE_EMOTE doesn't have the same structure at all. Fixme!
-            $data['event_param1'] = $eaiItem->event_param1;
-            $data['event_param2'] = 1000;
-            $data['event_param3'] = 1000;
-            $data['event_param4'] = 0;
-            break;
-        default:
-            $data['event_param1'] = $eaiItem->event_param1;
-            $data['event_param2'] = $eaiItem->event_param2;
-            $data['event_param3'] = $eaiItem->event_param3;
-            $data['event_param4'] = $eaiItem->event_param4;
-            break;            
-    }
     
     $textsParsed = false;
     # Parsing actions here

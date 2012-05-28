@@ -1,9 +1,75 @@
 <?php
 class SAI
 {
-    public function __construct($npcName, $npcId) {
-        $this->_npcId   = $npcId;
-        $this->_npcName = $npcName;
+    public function __construct() {
+    }
+}
+
+class EAI
+{
+    public function __construct($pdoObj) {
+        $this->_eaiItem = $pdoObj;
+    }
+    
+    public function toSAI() {
+        $saiData = array();
+        $saiData['entryorguid']  = intval($this->_eaiItem->npcId);
+        $saiData['source_type']  = 0;
+        
+        $saiData['event_type']   = Utils::convertEventToSAI($this->_eaiItem->event_type);
+        $saiData['event_chance'] = intval($this->_eaiItem->event_chance);
+        $saiData['event_flags']  = Utils::SAI2EAIFlag($this->_eaiItem->event_flags);
+        
+        $saiData['event_params'] = Utils::convertParamsToSAI($this->_eaiItem);
+        
+        return $saiData;
+    }
+}
+
+class EAIText
+{
+    public function __construct($oldIdx, $content, $sound, $type, $lang, $emote, $comment) {
+        $this->_item = array(
+            'oldEntry' => $oldIdx,
+            'content'  => $content,
+            'soundId'  => $sound,
+            'eaiType'  => $type,
+            'emoteId'  => $emote,
+            'comment'  => $comment
+        );
+    }
+}
+
+class SAICollection
+{
+    private $items = array();
+
+    public function getStore() { return $this->items; }
+
+    public function addItem($pdoObj) {
+        $this->items[] = new SAI($pdoObj);
+    }
+}
+
+class EAICollection
+{
+    private $items = array();
+
+    public function getStore() { return $this->items; }
+
+    public function addItem($pdoObj) {
+        $this->items[] = new EAI($pdoObj);
+    }
+}
+
+class TextsCollection
+{
+    private $items = array();
+    
+    public function getStore() { return $this->items; }
+
+    public function addItem($pdoObj) {
+        $this->items[] = new CreatureText($pdoObj);
     }
 }
 
