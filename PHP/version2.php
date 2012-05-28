@@ -8,8 +8,6 @@ $withDate = false; // Append date to filename ?
 
 require_once('./utils.php');
 
-echo '<pre>';
-
 try {
     $pdoOptions[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
     $pdo = new PDO('mysql:host=' . $host . ';dbname=' . $dbName, $username, $password, $pdoOptions);
@@ -48,8 +46,7 @@ while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
 echo $EAIDataSet->rowCount() . ' EAI entries stored and ready for processing !';
 
 foreach ($EAIStore as $idx => $eai) {
-    echo '<pre>';
-    print_r($eai);
-    echo '</pre>';
+    $eai->toSAI($pdo);
+    
     die;
 }

@@ -155,4 +155,67 @@ class Utils
         }
         return array_map('intval', $data);
     }
+    
+    static function buildSAIAction($eaiAction, $param1, $param2, $param3, $pdo) {
+        switch ($eaiAction)
+        {
+            case ACTION_T_TEXT:
+            {
+                $texts = $pdo->query("SELECT * FROM creature_ai_texts WHERE entry IN (${param1}, ${param2}, {$param3})")->fetch(PDO::FETCH_OBJ);
+                
+                return array(
+                    'dumpedTexts' => $texts,
+                    'SAIAction'   => SMART_ACTION_TALK,
+                    'params'      => array($param1, $param2, $param3, 0, 0, 0)
+                );
+            }
+            case ACTION_T_SET_FACTION:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_FACTION,
+                    'params'     => array($param1, $param2, $param3, 0, 0, 0)
+                );
+            case ACTION_T_MORPH_TO_ENTRY_OR_MODEL:
+                return array(
+                    'SAIAction'  => SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL
+                    'params'     => array($param1, $param2, $param3, 0, 0, 0)
+                );
+            case ACTION_T_SOUND:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SOUND,
+                    'params'     => array($param1, $param2, 0, 0, 0, 0) // param2 = 0: self, else all in vis range
+                );
+            case ACTION_T_EMOTE:
+                return array(
+                    'SAIAction'  => SMART_ACTION_PLAY_EMOTE,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_RANDOM_EMOTE:
+                return array(
+                    'SAIAction'  => SMART_ACTION_RANDOM_EMOTE,
+                    'params'     => array($param1, $param2, $param3, 0, 0, 0)
+                );
+            case ACTION_T_CAST:
+                return array(
+                    'SAIAction'  => SMART_ACTION_CAST,
+                    'params'     => array($param1, $param3, 0, 0, 0, 0)
+                );
+            case ACTION_T_SUMMON:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SUMMON_CREATURE,
+                    'params'     => array($param1, __FIXME__, $param3, 0, __FIXME__, 0);
+                );
+            case ACTION_T_THREAT_SINGLE_PCT:
+                return array(
+                    'SAIAction'  => SMART_ACTION_THREAT_SINGLE_PCT,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_RANDOM_SOUND: // No event for this in SAI, needs to be handled though
+                return array();
+            case ACTION_T_RANDOM_SAY: // Unused
+            case ACTION_T_RANDOM_YELL:
+            case ACTION_T_RANDOM_TEXTEMOTE:
+            default:
+                return array();
+        }
+    }
 }

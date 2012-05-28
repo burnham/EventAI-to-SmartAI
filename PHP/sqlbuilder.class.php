@@ -11,7 +11,7 @@ class EAI
         $this->_eaiItem = $pdoObj;
     }
     
-    public function toSAI() {
+    public function toSAI($pdoDriver) {
         $saiData = array();
         $saiData['entryorguid']  = intval($this->_eaiItem->npcId);
         $saiData['source_type']  = 0;
@@ -22,6 +22,10 @@ class EAI
         
         $saiData['event_params'] = Utils::convertParamsToSAI($this->_eaiItem);
         
+        for ($i = 0; $i < 4; $i++)
+            $saiData['action' . $i] = Utils::buildSAIAction($this->_eaiItem->{"action".$i."_type"},
+                                        $this->_eaiItem->{"action".$i."_param1"}, $this->_eaiItem->{"action".$i."_param2"}, $this->_eaiItem->{"action".$i."_param3"}, $pdoDriver);
+
         return $saiData;
     }
 }
