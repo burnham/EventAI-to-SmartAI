@@ -174,7 +174,7 @@ class Utils
                 );
             case ACTION_T_MORPH_TO_ENTRY_OR_MODEL:
                 return array(
-                    'SAIAction'  => SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL
+                    'SAIAction'  => SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL,
                     'params'     => array($param1, $param2, $param3, 0, 0, 0)
                 );
             case ACTION_T_SOUND:
@@ -200,7 +200,7 @@ class Utils
             case ACTION_T_SUMMON:
                 return array(
                     'SAIAction'  => SMART_ACTION_SUMMON_CREATURE,
-                    'params'     => array($param1, __FIXME__, $param3, 0, __FIXME__, 0);
+                    'params'     => array($param1, __FIXME__, $param3, 0, __FIXME__, 0)
                 );
             case ACTION_T_THREAT_SINGLE_PCT:
             case ACTION_T_THREAT_ALL_PCT:
@@ -274,7 +274,7 @@ class Utils
                 );
             case ACTION_T_RANGED_MOVEMENT:
                 return array(
-                    'SAIAction'  => __FIXME__.
+                    'SAIAction'  => __FIXME__,
                     'params'     => array(__FIXME__)
                 );
             case ACTION_T_RANDOM_PHASE:

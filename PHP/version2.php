@@ -46,7 +46,6 @@ while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
 echo $EAIDataSet->rowCount() . ' EAI entries stored and ready for processing !';
 
 foreach ($EAIStore as $idx => $eai) {
-    $eai->toSAI($pdo);
-    
+    //$eai->toSAI($pdo);
     die;
 }
