@@ -320,6 +320,78 @@ class Utils
                     'SAIAction'  => SMART_ACTION_DIE,
                     'params'     => array(0, 0, 0, 0, 0, 0)
                 );
+            case ACTION_T_ZONE_COMBAT_PULSE:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_IN_COMBAT_WITH_ZONE,
+                    'params'     => array(0, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_CALL_FOR_HELP:
+                return array(
+                    'SAIAction'  => SMART_ACTION_CALL_FOR_HELP,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_SET_SHEATH:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_SHEATH,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_FORCE_DESPAWN:
+                return array(
+                    'SAIAction'  => SMART_ACTION_FORCE_DESPAWN,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_SET_INVINCIBILITY_HP_LEVEL:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_MOUNT_TO_ENTRY_OR_MODEL:
+                return array(
+                    'SAIAction'  => SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL,
+                    'params'     => array($param1, $param2, 0, 0, 0, 0)
+                );
+            case ACTION_T_SET_PHASE_MASK:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_INGAME_PHASE_MASK,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_SET_STAND_STATE:
+                //! Not found in SAI
+                return array(
+                    'SAIAction'  => __FIXME__,
+                    'params'     => array(__FIXME__),
+                );
+            case ACTION_T_MOVE_RANDOM_POINT:
+                return array(
+                    'SAIAction'  => SMART_ACTION_RANDOM_MOVE,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_SET_VISIBILITY:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_VISIBILITY,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_SET_ACTIVE:
+                //! SAI has no parameter and cannot set a NPC as inactive!
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_ACTIVE,
+                    'params'     => array(0, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_SET_AGGRESSIVE:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_REACT_STATE,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_ATTACK_START_PULSE:
+                return array(
+                    'SAIAction'  => SMART_ACTION_ATTACK_START,
+                    'params'     => array(0, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_SUMMON_GO:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SUMMON_GO,
+                    'params'     => array($param1, $param2, 0, 0, 0, 0)
+                );
             case ACTION_T_RANDOM_SOUND:
                 //! No event for this in SAI, needs to be handled though imo
                 return array();
