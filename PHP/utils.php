@@ -261,7 +261,7 @@ class Utils
                     'SAIAction'  => SMART_ACTION_EVADE,
                     'params'     => array(0, 0, 0, 0, 0, 0)
                 );
-            case ACTION_T_FLEE:
+            case ACTION_T_FLEE_FOR_ASSIST:
                 //! EAI has no parameter. I set the first one as 1 as default for the NPC to emote when fleeing.
                 return array(
                     'SAIAction'  => SMART_ACTION_FLEE_FOR_ASSIST,
