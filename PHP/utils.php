@@ -3,6 +3,8 @@ require_once('./sqlbuilder.class.php');
 require_once('./eai.def.php');
 require_once('./sai.def.php');
 
+define('__FIXME__',  -1);
+
 class Utils
 {
     static function hasParameters($eventId) {
@@ -182,7 +184,7 @@ class Utils
             case ACTION_T_SOUND:
                 return array(
                     'SAIAction'  => SMART_ACTION_SOUND,
-                    'params'     => array($param1, $param2, 0, 0, 0, 0) // param2 = 0: self, else all in vis range
+                    'params'     => array($param1, max(0, min($param2, 1)), 0, 0, 0, 0) // param2 = 0: self, else all in vis range
                 );
             case ACTION_T_EMOTE:
                 return array(
@@ -205,13 +207,75 @@ class Utils
                     'params'     => array($param1, __FIXME__, $param3, 0, __FIXME__, 0);
                 );
             case ACTION_T_THREAT_SINGLE_PCT:
+            case ACTION_T_THREAT_ALL_PCT:
+                //! Wiki is wrong here, we can have two arguments. First is added threat, second is removed threat.
+                //! Threat addition has priority over threat reduction!
                 return array(
-                    'SAIAction'  => SMART_ACTION_THREAT_SINGLE_PCT,
+                    'SAIAction'  => ($eaiAction == ACTION_T_THREAT_SINGLE_PCT ? SMART_ACTION_THREAT_SINGLE_PCT : SMART_ACTION_THREAT_ALL_PCT),
+                    'params'     => array(max(0, $param1), min(0, $param1), 0, 0, 0, 0)
+                );
+            case ACTION_T_QUEST_EVENT_ALL:
+            case ACTION_T_QUEST_EVENT:
+                return array(
+                    'SAIAction'  => SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS,
                     'params'     => array($param1, 0, 0, 0, 0, 0)
                 );
-            case ACTION_T_RANDOM_SOUND: // No event for this in SAI, needs to be handled though
+            case ACTION_T_CAST_EVENT_ALL:
+            case ACTION_T_CAST_EVENT:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SEND_CASTCREATUREORGO,
+                    'params'     => array($param1, $param2, 0, 0, 0, 0)
+                );
+            case ACTION_T_SET_UNIT_FIELD:
+                //! Not a  100% sure on this, requires deeper research. (Horn's comments based)
+                //! Not sure if it's param1 or param2!
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_UNIT_FIELD_BYTES_1,
+                    'params'     => array($param2, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_SET_UNIT_FLAG:
+            case ACTION_T_REMOVE_UNIT_FLAG:
+                return array(
+                    'SAIAction'  => ($eaiAction == ACTION_T_SET_UNIT_FLAG ? SMART_ACTION_SET_UNIT_FLAG : SMART_ACTION_REMOVE_UNIT_FLAG),
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_AUTO_ATTACK:
+                return array(
+                    'SAIAction'  => SMART_ACTION_AUTO_ATTACK,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_COMBAT_MOVEMENT:
+                return array(
+                    'SAIAction'  => SMART_ACTION_ALLOW_COMBAT_MOVEMENT,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_SET_PHASE:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_EVENT_PHASE,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_INC_PHASE:
+                //! EAI uses only one parameter. SAI uses two: first, we decrease, then we increase. I don't get the difference.
+                return array(
+                    'SAIAction'  => SMART_ACTION_INC_EVENT_PHASE,
+                    'params'     => array(__FIXME__)
+                );
+            case ACTION_T_EVADE:
+                return array(
+                    'SAIAction'  => SMART_ACTION_EVADE,
+                    'params'     => array(0, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_FLEE:
+                //! EAI has no parameter. I set the first one as 1 as default for the NPC to emote when fleeing.
+                return array(
+                    'SAIAction'  => SMART_ACTION_FLEE_FOR_ASSIST,
+                    'params'     => array(1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_RANDOM_SOUND:
+                //! No event for this in SAI, needs to be handled though imo
                 return array();
-            case ACTION_T_RANDOM_SAY: // Unused
+            // These are unused
+            case ACTION_T_RANDOM_SAY:
             case ACTION_T_RANDOM_YELL:
             case ACTION_T_RANDOM_TEXTEMOTE:
             default:
