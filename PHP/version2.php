@@ -2,7 +2,7 @@
 
 // Cosmetic useless shit at different places here
 ob_start();
-echo PHP_EOL . PHP_EOL . " ______                       __" . PHP_EOL;
+echo PHP_EOL . " ______                       __" . PHP_EOL;
 echo "/\\__  _\\       __          __/\\ \\__" . PHP_EOL;
 echo "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __" . PHP_EOL;
 echo "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\" . PHP_EOL;
@@ -68,7 +68,7 @@ while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
 }
 
 ob_start();
-echo '>> ' . count($npcStore) . ' different NPC EAIs grouped in ' . round(microtime(true) - $oldDate, 4) . ' ms !';
+echo '>> ' . count($npcStore) . ' different NPC EAIs grouped in ' . round(microtime(true) - $oldDate, 4) . ' ms !' . PHP_EOL;
 ob_end_flush();
 
 foreach ($npcStore as $npcId => $npcObj) {
