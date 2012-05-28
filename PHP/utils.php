@@ -162,15 +162,11 @@ class Utils
         switch ($eaiAction)
         {
             case ACTION_T_TEXT:
-            {
-                $texts = $pdo->query("SELECT * FROM creature_ai_texts WHERE entry IN (${param1}, ${param2}, {$param3})")->fetch(PDO::FETCH_OBJ);
-                
                 return array(
-                    'dumpedTexts' => $texts,
+                    'dumpedTexts' => $pdo->query("SELECT * FROM creature_ai_texts WHERE entry IN (${param1}, ${param2}, {$param3})")->fetch(PDO::FETCH_OBJ),
                     'SAIAction'   => SMART_ACTION_TALK,
                     'params'      => array($param1, $param2, $param3, 0, 0, 0)
                 );
-            }
             case ACTION_T_SET_FACTION:
                 return array(
                     'SAIAction'  => SMART_ACTION_SET_FACTION,
@@ -270,6 +266,59 @@ class Utils
                 return array(
                     'SAIAction'  => SMART_ACTION_FLEE_FOR_ASSIST,
                     'params'     => array(1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_REMOVEAURASFROMSPELL:
+                return array(
+                    'SAIAction'  => SMART_ACTION_REMOVEAURASFROMSPELL,
+                    'params'     => array($param2, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_RANGED_MOVEMENT:
+                return array(
+                    'SAIAction'  => __FIXME__.
+                    'params'     => array(__FIXME__)
+                );
+            case ACTION_T_RANDOM_PHASE:
+                return array(
+                    'SAIAction'  => SMART_ACTION_RANDOM_PHASE,
+                    'params'     => array($param1, $param2, $param3, 0, 0, 0)
+                );
+            case ACTION_T_RANDOM_PHASE_RANGE:
+                //! TODO: Check if EAI is inclusive or exclusive (like SAI)
+                return array(
+                    'SAIAction'  => SMART_ACTION_RANDOM_PHASE_RANGE,
+                    'params'     => array($param1, $param2)
+                );
+            case ACTION_T_SUMMON:
+                //! Forcing SummonType to 1 as EAI doesnt handle it
+                return array(
+                    'spawnTimeSecs' => $pdo->query('SELECT spawntimesecs FROM creature_ai_summons WHERE id = ' . $param3)->fetch(PDO::FETCH_OBJ),
+                    'SAIAction'     => SMART_ACTION_SUMMON_CREATURE,
+                    'params'        => array($param1, 1, 'selfArray::spawnTimeSecs', 0, 0, 0)
+                );
+            case ACTION_T_KILLED_MONSTER:
+                return array(
+                    'SAIAction'  => SMART_ACTION_CALL_KILLEDMONSTER,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_SET_INST_DATA:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_INST_DATA,
+                    'params'     => array($param1, $param2)
+                );
+            case ACTION_T_SET_INST_DATA64:
+                return array(
+                    'SAIAction'  => SMART_ACTION_SET_INST_DATA64,
+                    'params'     => array($param1, 0, 0, 0, 0, 0)
+                );
+            case ACTION_T_UPDATE_TEMPLATE:
+                return array(
+                    'SAIAction'  => SMART_ACTION_UPDATE_TEMPLATE,
+                    'params'     => array($param1, $param2, 0, 0, 0, 0)
+                );
+            case ACTION_T_DIE:
+                return array(
+                    'SAIAction'  => SMART_ACTION_DIE,
+                    'params'     => array(0, 0, 0, 0, 0, 0)
                 );
             case ACTION_T_RANDOM_SOUND:
                 //! No event for this in SAI, needs to be handled though imo
