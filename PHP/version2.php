@@ -74,5 +74,4 @@ ob_end_flush();
 foreach ($npcStore as $npcId => $npcObj) {
     $npcObj->convertAllToSAI();
     echo $npcObj->toSQL();
-    die;
 }

@@ -198,6 +198,7 @@ class Utils
                     'params'     => array($param1, $param3, 0, 0, 0, 0)
                 );
             case ACTION_T_SUMMON:
+                return sLog::outString('Tried to cast ACTION_T_SUMMON to SMART_ACTION_SUMMON_CREATURE, but parameters are not totally handled! Aborting');
                 return array(
                     'SAIAction'  => SMART_ACTION_SUMMON_CREATURE,
                     'params'     => array($param1, __FIXME__, $param3, 0, __FIXME__, 0)
@@ -252,6 +253,7 @@ class Utils
                 );
             case ACTION_T_INC_PHASE:
                 //! EAI uses only one parameter. SAI uses two: first, we decrease, then we increase. I don't get the difference.
+                return sLog::outString('Tried to cast ACTION_T_INC_PHASE to SMART_ACTION_INC_EVENT_PHASE, but parameters are not totally handled! Aborting');
                 return array(
                     'SAIAction'  => SMART_ACTION_INC_EVENT_PHASE,
                     'params'     => array(__FIXME__)
@@ -273,6 +275,7 @@ class Utils
                     'params'     => array($param2, 0, 0, 0, 0, 0)
                 );
             case ACTION_T_RANGED_MOVEMENT:
+                return sLog::outString('Tried to cast ACTION_T_RANGED_MOVEMENT to SAI, but this event does not exist in SAI! Aborting.');
                 return array(
                     'SAIAction'  => __FIXME__,
                     'params'     => array(__FIXME__)
@@ -357,6 +360,7 @@ class Utils
                 );
             case ACTION_T_SET_STAND_STATE:
                 //! Not found in SAI
+                return sLog::outString('Tried to cast ACTION_T_SET_STAND_STATE to SAI, but this event does not seem to exist in SAI! Aborting.');
                 return array(
                     'SAIAction'  => __FIXME__,
                     'params'     => array(__FIXME__),
@@ -402,5 +406,16 @@ class Utils
             default:
                 return array();
         }
+    }
+    
+    static function generateSAIPhase($eaiPhase) {
+        //! Not sure if this how it should behave. EAI uses phases to force events NOT TO happen in phases. It means they happen in ~$phase to me.
+        //! Except for 0. (Seems kind of idiot for an event to never happen.)
+        //! Sample output: 0b100 inverted is 0b011 (4 => 3)
+        if ($eaiPhase == 0)
+            return 0;
+
+        $saiPhase = decbin(~$eaiPhase);
+        return bindec(substr($saiPhase, -strlen(decbin($eaiPhase))));
     }
 }
