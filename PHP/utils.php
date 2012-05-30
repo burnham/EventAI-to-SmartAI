@@ -163,7 +163,7 @@ class Utils
         {
             case ACTION_T_TEXT:
                 return array(
-                    'dumpedTexts' => $pdo->query("SELECT * FROM creature_ai_texts WHERE entry IN (${param1}, ${param2}, {$param3})")->fetch(PDO::FETCH_OBJ),
+                    'dumpedTexts' => $pdo->query("SELECT * FROM creature_ai_texts WHERE entry IN (${param1}, ${param2}, {$param3})")->fetchAll(PDO::FETCH_OBJ),
                     'SAIAction'   => SMART_ACTION_TALK,
                     'params'      => array($param1, $param2, $param3, 0, 0, 0)
                 );

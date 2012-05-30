@@ -39,7 +39,10 @@ class NPC
     }
     
     public function getCreatureText() {
-        $output   = 'INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES' . PHP_EOL;
+        if (count($this->texts) == 0) return '';
+        $output  = '-- Texts for ' . $this->npcName . PHP_EOL;
+        $output .= 'DELETE FROM `creature_text` WHERE `entry`= ' . $this->npcId . ';' . PHP_EOL;
+        $output .= 'INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES' . PHP_EOL;
         foreach ($this->texts as $itr => $item)
             $output .= $item->toCreatureText();
         return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
@@ -160,7 +163,7 @@ class sLog
     }
     
     static function outSpecificFile($file, $msg) {
-        if ($handle = fopen($file, 'w+')) {
+        if ($handle = fopen($file, 'a')) {
             fwrite($handle, $msg);
             fclose($handle);
         }
@@ -172,29 +175,32 @@ class CreatureAiTexts
     private $creatureText = array();
 
     public function __construct($item, $parentNpc) {
-        $this->_item = $item;
+        $this->_items = $item;
         $this->_parent = $parentNpc;
     }
     
     public function toCreatureText() {
-        $output  = '(' . $this->_parent->npcId . ', ';
-        $output .= $this->_parent->textIncrease() . ', ';
-        $output .= $this->_parent->getGroupItr() . ', ';
-        $output .= '"' . addslashes($this->_item->content_default) . '", ';
-        $output .= $this->typeToSAI() . ', ';
-        $output .= $this->_item->language . ', 100, ';
-        $output .= $this->_item->emote . ', 0, ';
-        $output .= $this->_item->sound . ', "' . addslashes($this->_parent->npcName) . '"';
-        return $output . '),' . PHP_EOL;
+        $output = '';
+        foreach ($this->_items as $item) {
+            $output .= '(' . $this->_parent->npcId . ', ';
+            $output .= $this->_parent->getGroupItr() . ', ';
+            $output .= $this->_parent->textIncrease() . ', ';
+            $output .= '"' . addslashes($item->content_default) . '", ';
+            $output .= $this->typeToSAI($item) . ', ';
+            $output .= $item->language . ', 100, ';
+            $output .= $item->emote . ', 0, ';
+            $output .= $item->sound . ', "' . addslashes($this->_parent->npcName) . '"),' . PHP_EOL;
+        }
+        return $output;
     }
     
-    private function typeToSAI() {
-        switch ($this->_item->type)
+    private function typeToSAI($item) {
+        switch ($item->type)
         {
             case 0:
             case 1:
             case 2:
-                return 12 + $this->_item->type * 2;
+                return 12 + $item->type * 2;
             case 3:
                 return 41;
             case 4:
