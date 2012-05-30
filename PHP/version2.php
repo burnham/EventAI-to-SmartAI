@@ -35,10 +35,10 @@ ob_end_flush();
 
 $oldDate = microtime(true);
 # Debug - limit to 500 for developping purposes
-$EAIDataSet = $pdo->query("SELECT * FROM creature_ai_scripts ORDER BY id");
+$EAIDataSet = $pdo->query("SELECT * FROM creature_ai_scripts ORDER BY id")->fetchAll(PDO::FETCH_OBJ);
 
 ob_start();
-echo '>> Gotten all entries in ' . round(microtime(true) - $oldDate, 4) . ' ms' . PHP_EOL;
+echo '>> Gotten ' . count($EAIDataSet) . ' entries in ' . round(microtime(true) - $oldDate, 4) . ' ms' . PHP_EOL;
 echo PHP_EOL . 'Grouping entries by NPC ...' . PHP_EOL;
 ob_end_flush();
 
@@ -52,7 +52,8 @@ $npcStore        = array();
 
 $oldDate = microtime(true);
 
-while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
+//while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
+foreach ($EAIDataSet as $eaiItem) {
     // Prevent calling the NPC's name on each iteration
     if ($npcName != $eaiItem->creature_id) {
         $npcName   = $pdo->query('SELECT name FROM creature_template WHERE entry = ' . $eaiItem->creature_id)->fetch(PDO::FETCH_OBJ)->name;
@@ -66,12 +67,12 @@ while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
 }
 
 ob_start();
-echo '>> ' . count($npcStore) . ' different NPC EAIs grouped in ' . round(microtime(true) - $oldDate, 4) . ' ms !' . PHP_EOL;
+echo '>> ' . count($npcStore) . ' different NPC EAIs detected in ' . round(microtime(true) - $oldDate, 4) . ' ms !' . PHP_EOL;
 ob_end_flush();
 
 foreach ($npcStore as $npcId => $npcObj) {
     $npcObj->convertAllToSAI();
-    echo $npcObj->getSmartScripts();
-    sLog::outSpecificFile('creature_texts.sql', $npcObj->getCreatureText());
-    //die;
+    $npcObj->getSmartScripts(false); // Dump texts ONLY
+    sLog::outSpecificFile('creature_texts_v2.sql', $npcObj->getCreatureText());
+    sLog::outSpecificFile('smart_scripts_v2.sql', $npcObj->getSmartScripts());
 }

@@ -251,7 +251,7 @@ class Utils
                 return sLog::outString('Tried to cast ACTION_T_INC_PHASE to SMART_ACTION_INC_EVENT_PHASE, but parameters are not totally handled! Aborting');
                 return array(
                     'SAIAction'  => SMART_ACTION_INC_EVENT_PHASE,
-                    'params'     => array(__FIXME__)
+                    'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__)
                 );
             case ACTION_T_EVADE:
                 return array(
@@ -259,10 +259,12 @@ class Utils
                     'params'     => array(0, 0, 0, 0, 0, 0)
                 );
             case ACTION_T_FLEE_FOR_ASSIST:
-                //! EAI has no parameter. I set the first one as 1 as default for the NPC to emote when fleeing.
+                //! EAI has no parameter. I set the first one as 0 as default for the NPC not to emote when fleeing.
+                //! EAI needs another action for this. WE DONT. This action will be used to pick if we need to emote
+                //! on fleeing.
                 return array(
                     'SAIAction'  => SMART_ACTION_FLEE_FOR_ASSIST,
-                    'params'     => array(1, 0, 0, 0, 0, 0)
+                    'params'     => array(0, 0, 0, 0, 0, 0)
                 );
             case ACTION_T_REMOVEAURASFROMSPELL:
                 return array(
@@ -273,7 +275,7 @@ class Utils
                 return sLog::outString('Tried to cast ACTION_T_RANGED_MOVEMENT to SAI, but this event does not exist in SAI! Aborting.');
                 return array(
                     'SAIAction'  => __FIXME__,
-                    'params'     => array(__FIXME__)
+                    'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__)
                 );
             case ACTION_T_RANDOM_PHASE:
                 return array(
@@ -358,7 +360,7 @@ class Utils
                 return sLog::outString('Tried to cast ACTION_T_SET_STAND_STATE to SAI, but this event does not seem to exist in SAI! Aborting.');
                 return array(
                     'SAIAction'  => __FIXME__,
-                    'params'     => array(__FIXME__),
+                    'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__)
                 );
             case ACTION_T_MOVE_RANDOM_POINT:
                 return array(

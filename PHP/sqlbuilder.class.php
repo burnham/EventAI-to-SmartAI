@@ -7,6 +7,11 @@ class NPC
         $this->npcId = $npcId;
         $this->npcName = $npcName;
     }
+    
+    public function setEmoteWhenFleeing($apply) {
+        foreach ($this->sai as $saiItem)
+            $saiItem->setFleeingEmoteState($apply);
+    }
 
     private $sai = array();
     private $eai = array();
@@ -31,11 +36,20 @@ class NPC
             $this->addSAI($eaiItem->toSAI($this->pdo));
     }
     
-    public function getSmartScripts() {
+    public function getSmartScripts($write = true) {
+        if (!$write) {
+            foreach ($this->sai as $itr => $item)
+                $item->toSQL($itr, false);
+        }
         $output   = '';
         foreach ($this->sai as $itr => $item)
             $output .= $item->toSQL($itr);
         return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
+    }
+    
+    public function updataTalkActions($pairs) {
+        foreach ($this->sai as $saiItem)
+            $saiItem->updataTalkActions($pairs);
     }
     
     public function getCreatureText() {
@@ -56,7 +70,45 @@ class SAI
         $this->_parent = $parent;
     }
     
-    public function toSQL($index) {
+    public function updataTalkActions($pairs) {
+        foreach ($this->data['actions'] as $i => $action) {
+            $actionData = $this->data['actions'][$i];
+
+            if (count($actionData) == 0 || $actionData['SAIAction'] != SMART_ACTION_TALK)
+                continue;
+
+            foreach ($pairs as $eaiEntry => $saiEntry) {
+                if ($this->data['actions'][$i]['params'][0] != $eaiEntry)
+                    continue;
+
+                $this->data['actions'][$i]['params'] = array($saiEntry, 0, 0, 0, 0, 0);
+            }
+        }
+    }
+    
+    public function setFleeingEmoteState($apply) {
+        foreach ($this->data['actions'] as $i => $action) {
+            if (count($action) == 0)
+                break;
+        
+            if ($this->data['actions'][$i]['SAIAction'] == SMART_ACTION_FLEE_FOR_ASSIST)
+                $this->data['actions'][$i]['params'][0] = $apply ? 1 : 0;
+        }
+    }
+    
+    public function toSQL($index, $write = true) {    
+        //! We do not write anything, we only store texts.
+        if (!$write) {
+            foreach ($this->data['actions'] as $i => $action) {
+                if (count($action) == 0)
+                    break;
+            
+                if ($this->data['actions'][$i]['SAIAction'] == SMART_ACTION_TALK)
+                    $this->_parent->addEAIText($this->data['actions'][$i]['dumpedTexts']);
+            }
+            return;
+        }
+        
         $outputString = '-- SAI: ' . $this->data['npcName'] . PHP_EOL;
         $outputString .= 'SET @ENTRY := ' . $this->data['entryorguid'] . ';' . PHP_EOL;
         $outputString .= 'UPDATE creature_template SET AIName="SmartAI" WHERE entry = @ENTRY;' . PHP_EOL;
@@ -95,11 +147,8 @@ class SAI
 
             $outputString .= $this->data['actions'][$i]['SAIAction'] . ', ';
             
-            if ($this->data['actions'][$i]['SAIAction'] == SMART_ACTION_TALK)
-                $this->_parent->addEAIText($this->data['actions'][$i]['dumpedTexts']);
-            
             for ($j = 0; $j < 6; $j++)
-                $outputString .= $this->data['actions'][$i]['params'][$j] . ', ';
+                $outputString .= (isset($this->data['actions'][$i]['params'][$j]) ? $this->data['actions'][$i]['params'][$j] : 0) . ', ';
             
             $this->_parent->resetTextItr();
             $outputString .= '),' . PHP_EOL;
@@ -177,11 +226,20 @@ class CreatureAiTexts
     public function __construct($item, $parentNpc) {
         $this->_items = $item;
         $this->_parent = $parentNpc;
+        $this->newIndexPairs = array();
     }
     
     public function toCreatureText() {
         $output = '';
         foreach ($this->_items as $item) {
+            // Ignore flee emotes.
+            if ($item->content_default == "%s attempts to run away in fear!") {
+                $this->_parent->setEmoteWhenFleeing(true);
+                continue;
+            }
+
+            $this->newIndexPairs[$item->entry] = $this->_parent->getGroupItr();
+            
             $output .= '(' . $this->_parent->npcId . ', ';
             $output .= $this->_parent->getGroupItr() . ', ';
             $output .= $this->_parent->textIncrease() . ', ';
@@ -191,6 +249,9 @@ class CreatureAiTexts
             $output .= $item->emote . ', 0, ';
             $output .= $item->sound . ', "' . addslashes($this->_parent->npcName) . '"),' . PHP_EOL;
         }
+
+        $this->_parent->updataTalkActions($this->newIndexPairs);
+        
         return $output;
     }
     
