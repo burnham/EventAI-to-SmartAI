@@ -89,5 +89,12 @@ define('ACTION_T_SET_ACTIVE',                 101);  //Apply
 define('ACTION_T_SET_AGGRESSIVE',             102);  //Apply
 define('ACTION_T_ATTACK_START_PULSE',         103);  //Distance
 define('ACTION_T_SUMMON_GO',                  104);  //GameObjectID, DespawnTime in ms
-
 define('ACTION_T_END',                        105); 
+
+define("TARGET_T_SELF",                       0);
+define("TARGET_T_HOSTILE",                    1);
+define("TARGET_T_HOSTILE_SECOND_AGGRO",       2);
+define("TARGET_T_HOSTILE_LAST_AGGRO",         3);
+define("TARGET_T_HOSTILE_RANDOM",             4);
+define("TARGET_T_HOSTILE_RANDOM_NOT_TOP",     5);
+define("TARGET_T_ACTION_INVOKER",             6);

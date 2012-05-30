@@ -195,13 +195,8 @@ class Utils
             case ACTION_T_CAST:
                 return array(
                     'SAIAction'  => SMART_ACTION_CAST,
-                    'params'     => array($param1, $param3, 0, 0, 0, 0)
-                );
-            case ACTION_T_SUMMON:
-                return sLog::outString('Tried to cast ACTION_T_SUMMON to SMART_ACTION_SUMMON_CREATURE, but parameters are not totally handled! Aborting');
-                return array(
-                    'SAIAction'  => SMART_ACTION_SUMMON_CREATURE,
-                    'params'     => array($param1, __FIXME__, $param3, 0, __FIXME__, 0)
+                    'params'     => array($param1, $param3, 0, 0, 0, 0),
+                    'target'     => Utils::EAITargetToSAI($param2)
                 );
             case ACTION_T_THREAT_SINGLE_PCT:
             case ACTION_T_THREAT_ALL_PCT:
@@ -417,5 +412,10 @@ class Utils
 
         $saiPhase = decbin(~$eaiPhase);
         return bindec(substr($saiPhase, -strlen(decbin($eaiPhase))));
+    }
+    
+    static function EAITargetToSAI($eaiTarget) {
+        //! Targets are the same, except SAI has then offsetted by +1.
+        return $eaiTarget + 1;
     }
 }

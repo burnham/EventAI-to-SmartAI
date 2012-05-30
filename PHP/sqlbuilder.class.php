@@ -2,13 +2,28 @@
 
 class NPC
 {
-    public function __construct($pdo, $npcId) { $this->pdo = $pdo; $this->npcId = $npcId; }
+    public function __construct($pdo, $npcId, $npcName) {
+        $this->pdo = $pdo;
+        $this->npcId = $npcId;
+        $this->npcName = $npcName;
+    }
 
     private $sai = array();
     private $eai = array();
+    private $texts = array();
+    
+    private $textsItr = 0;
+    public function getTextItr() { return $this->textsItr; }
+    public function textIncrease() { return $this->textsItr++; }
+    public function resetTextItr() { $this->textsItr = 0; }
+
+    private $groupItr = 0;
+    public function getGroupItr() { return $this->groupItr; }
+    public function groupIncrease() { $this->resetTextItr(); return $this->groupItr++;}
 
     public function addSAI($sai) { $this->sai[] = $sai; }
-    public function addEAI($eai) { $this->eai[] = new EAI($eai); }
+    public function addEAI($eai) { $this->eai[] = new EAI($eai, $this); }
+    public function addEAIText($item) { $this->texts[] = new CreatureAiTexts($item, $this); }
     
     public function convertAllToSAI() {
         $oldDate = microtime(true);
@@ -16,18 +31,26 @@ class NPC
             $this->addSAI($eaiItem->toSAI($this->pdo));
     }
     
-    public function toSQL() {
+    public function getSmartScripts() {
         $output   = '';
         foreach ($this->sai as $itr => $item)
             $output .= $item->toSQL($itr);
+        return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
+    }
+    
+    public function getCreatureText() {
+        $output   = 'INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES' . PHP_EOL;
+        foreach ($this->texts as $itr => $item)
+            $output .= $item->toCreatureText();
         return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
     }
 }
 
 class SAI
 {
-    public function __construct($array) {
+    public function __construct($array, $parent) {
         $this->data = $array;
+        $this->_parent = $parent;
     }
     
     public function toSQL($index) {
@@ -66,11 +89,16 @@ class SAI
             }
             else
                 $outputString .= '0, 0, 0, 0, ';
+
             $outputString .= $this->data['actions'][$i]['SAIAction'] . ', ';
+            
+            if ($this->data['actions'][$i]['SAIAction'] == SMART_ACTION_TALK)
+                $this->_parent->addEAIText($this->data['actions'][$i]['dumpedTexts']);
             
             for ($j = 0; $j < 6; $j++)
                 $outputString .= $this->data['actions'][$i]['params'][$j] . ', ';
             
+            $this->_parent->resetTextItr();
             $outputString .= '),' . PHP_EOL;
         }
         
@@ -80,8 +108,9 @@ class SAI
 
 class EAI
 {
-    public function __construct($pdoObj) {
+    public function __construct($pdoObj, $parent) {
         $this->_eaiItem = $pdoObj;
+        $this->_parent = $parent;
     }
     
     public function toSAI($pdoDriver) {
@@ -108,18 +137,7 @@ class EAI
             if (count($saiData['actions'][$i]) != 0)
                 $saiData['saiEntries']++;
         
-        return new SAI($saiData);
-    }
-}
-
-class TextsCollection
-{
-    private $items = array();
-    
-    public function getStore() { return $this->items; }
-
-    public function addItem($pdoObj) {
-        $this->items[] = new CreatureText($pdoObj);
+        return new SAI($saiData, $this->_parent);
     }
 }
 
@@ -142,9 +160,54 @@ class sLog
     }
     
     static function outSpecificFile($file, $msg) {
-        if ($handle = fopen($file, 'a')) {
-            fwrite($handle, date('d/m/Y H:i:s :: ') . $msg . PHP_EOL);
+        if ($handle = fopen($file, 'w+')) {
+            fwrite($handle, $msg);
             fclose($handle);
+        }
+    }
+}
+
+class CreatureAiTexts
+{
+    private $creatureText = array();
+
+    public function __construct($item, $parentNpc) {
+        $this->_item = $item;
+        $this->_parent = $parentNpc;
+    }
+    
+    public function toCreatureText() {
+        $output  = '(' . $this->_parent->npcId . ', ';
+        $output .= $this->_parent->textIncrease() . ', ';
+        $output .= $this->_parent->getGroupItr() . ', ';
+        $output .= '"' . addslashes($this->_item->content_default) . '", ';
+        $output .= $this->typeToSAI() . ', ';
+        $output .= $this->_item->language . ', 100, ';
+        $output .= $this->_item->emote . ', 0, ';
+        $output .= $this->_item->sound . ', "' . addslashes($this->_parent->npcName) . '"';
+        return $output . '),' . PHP_EOL;
+    }
+    
+    private function typeToSAI() {
+        switch ($this->_item->type)
+        {
+            case 0:
+            case 1:
+            case 2:
+                return 12 + $this->_item->type * 2;
+            case 3:
+                return 41;
+            case 4:
+                return 15;
+            case 5:
+                return 42; // YOU WIN
+            case 6:
+                if ($this->_item->entry == -544)
+                    return 16;
+                else if ($this->_item->entry == -860)
+                    return 12;
+            default:
+                return -1; // Should never happen
         }
     }
 }

@@ -198,3 +198,30 @@ define('SMART_ACTION_SEND_GOSSIP_MENU',                   98); // menuId, option
 define('SMART_ACTION_GO_SET_LOOT_STATE',                  99); // state
 define('SMART_ACTION_SEND_TARGET_TO_TARGET',              100);// id
 define('SMART_ACTION_END',                                101);
+
+define("SMART_TARGET_NONE",                   0);   // NONE, defaulting to invoket
+define("SMART_TARGET_SELF",                   1);   // Self cast
+define("SMART_TARGET_VICTIM",                 2);   // Our current target (ie: highest aggro)
+define("SMART_TARGET_HOSTILE_SECOND_AGGRO",   3);   // Second highest aggro
+define("SMART_TARGET_HOSTILE_LAST_AGGRO",     4);   // Dead last on aggro
+define("SMART_TARGET_HOSTILE_RANDOM",         5);   // Just any random target on our threat list
+define("SMART_TARGET_HOSTILE_RANDOM_NOT_TOP", 6);   // Any random target except top threat
+define("SMART_TARGET_ACTION_INVOKER",         7);   // Unit who caused this Event to occur
+define("SMART_TARGET_POSITION",               8);   // use xyz from event params
+define("SMART_TARGET_CREATURE_RANGE",         9);   // CreatureEntry(0any), minDist, maxDist
+define("SMART_TARGET_CREATURE_GUID",          10);  // guid, entry
+define("SMART_TARGET_CREATURE_DISTANCE",      11);  // CreatureEntry(0any), maxDist
+define("SMART_TARGET_STORED",                 12);  // id, uses pre-stored target(list)
+define("SMART_TARGET_GAMEOBJECT_RANGE",       13);  // entry(0any), min, max
+define("SMART_TARGET_GAMEOBJECT_GUID",        14);  // guid, entry
+define("SMART_TARGET_GAMEOBJECT_DISTANCE",    15);  // entry(0any), maxDist
+define("SMART_TARGET_INVOKER_PARTY",          16);  // invoker's party members
+define("SMART_TARGET_PLAYER_RANGE",           17);  // min, max
+define("SMART_TARGET_PLAYER_DISTANCE",        18);  // maxDist
+define("SMART_TARGET_CLOSEST_CREATURE",       19);  // CreatureEntry(0any), maxDist, dead?
+define("SMART_TARGET_CLOSEST_GAMEOBJECT",     20);  // entry(0any), maxDist
+define("SMART_TARGET_CLOSEST_PLAYER",         21);  // maxDist
+define("SMART_TARGET_ACTION_INVOKER_VEHICLE", 22);  // Unit's vehicle who caused this Event to occur
+define("SMART_TARGET_OWNER_OR_SUMMONER",      23);  // Unit's owner or summoner
+define("SMART_TARGET_THREAT_LIST",            24);  // All units on creature's threat list
+define("SMART_TARGET_END",                    25);

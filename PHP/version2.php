@@ -45,10 +45,8 @@ ob_end_flush();
 $sqlOutputSAIs = fopen('./eai2sai' . ($withDate ? '-' . date() : '')  . '.sql', 'a');
 $textsOutput   = fopen('./eai2saiTexts' . ($withDate ? '-' . date() : '')  . '.sql', 'a');
 
-$NPC_NAME        = "";  // Save the last iterated NPC name
-$NPC_ID          = 0;   // And its entry in the table.
-$currentRowIndex = 0;
-$usedEventData   = array(); // Used to detect linking
+$npcName         = "";  // Save the last iterated NPC name
+$npcId           = 0;   // And its entry in the table.
 
 $npcStore        = array();
 
@@ -56,10 +54,10 @@ $oldDate = microtime(true);
 
 while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
     // Prevent calling the NPC's name on each iteration
-    if ($NPC_ID != $eaiItem->creature_id) {
+    if ($npcName != $eaiItem->creature_id) {
         $npcName   = $pdo->query('SELECT name FROM creature_template WHERE entry = ' . $eaiItem->creature_id)->fetch(PDO::FETCH_OBJ)->name;
         $npcId     = $eaiItem->creature_id;
-        $npcStore[$npcId] = new NPC($pdo, $npcId);
+        $npcStore[$npcId] = new NPC($pdo, $npcId, $npcName);
     }
     
     $eaiItem->npcName = $npcName;
@@ -73,5 +71,7 @@ ob_end_flush();
 
 foreach ($npcStore as $npcId => $npcObj) {
     $npcObj->convertAllToSAI();
-    echo $npcObj->toSQL();
+    echo $npcObj->getSmartScripts();
+    sLog::outSpecificFile('creature_texts.sql', $npcObj->getCreatureText());
+    //die;
 }
