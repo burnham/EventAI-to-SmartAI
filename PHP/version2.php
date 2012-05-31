@@ -65,6 +65,8 @@ foreach ($EAIDataSet as $eaiItem) {
     $npcStore[$npcId]->addEAI($eaiItem);
 }
 
+unset($eaiItem, $npcName, $npcId, $EAIDataSet); // Save some memory
+
 $storeSize = count($npcStore);
 
 ob_start();
@@ -72,12 +74,14 @@ echo '>> ' . $storeSize . ' different NPC EAIs detected in ' . round(microtime(t
 echo 'Converting ... (0%)' . PHP_EOL;
 ob_end_flush();
 
-unlink('creature_texts_v2.sql');
-unlink('smart_scripts_v2.sql');
+if (file_exists('creature_texts_v2.sql'))
+    unlink('creature_texts_v2.sql');
+if (file_exists('smart_scripts_v2.sql'))
+    unlink('smart_scripts_v2.sql');
 
 $itr = 0;
 foreach ($npcStore as $npcId => $npcObj) {
-    echo $npcObj->countSQLRows() . ' EAI sql row found for NPC ' . $npcObj->npcName . PHP_EOL;
+    // echo $npcObj->countSQLRows() . ' EAI sql row found for NPC ' . $npcObj->npcName . PHP_EOL;
 
     $npcObj->convertAllToSAI();
     $npcObj->getSmartScripts(false); // Dump texts ONLY

@@ -5,6 +5,45 @@ require_once('./sai.def.php');
 
 define('__FIXME__',  -1);
 
+function errorHandler($errno, $errstr, $errfile, $errline)
+{
+    if (!(error_reporting() & $errno)) {
+        // This error code is not included in error_reporting
+        return;
+    }
+
+    switch ($errno) {
+        case E_USER_ERROR:
+            echo "ERROR: [$errno] $errstr" . PHP_EOL;
+            echo "  Fatal error on line $errline in file $errfile" . PHP_EOL;
+            echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")" . PHP_EOL;
+            echo "Aborting..." . PHP_EOL;
+            exit(1);
+            break;
+        case E_USER_WARNING:
+        case E_WARNING:
+            echo "WARNING [$errno] $errstr" . PHP_EOL;
+            echo "  Fatal error on line $errline in file $errfile" . PHP_EOL;
+            exit(1);
+            break;
+        case E_USER_NOTICE:
+            echo "NOTICE [$errno] $errstr" . PHP_EOL;
+            echo "  Fatal error on line $errline in file $errfile" . PHP_EOL;
+            exit(1);
+            break;
+        default:
+            echo "Unknown error type: [$errno] $errstr" . PHP_EOL;
+            echo "  On line $errline in file $errfile" . PHP_EOL;
+            exit(1);
+            break;
+    }
+
+    /* Don't execute PHP internal error handler */
+    return true;
+}
+
+set_error_handler("errorHandler");
+
 class Utils
 {
     static function hasParameters($eventId) {

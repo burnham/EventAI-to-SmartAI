@@ -2,9 +2,16 @@
 
 class NPC
 {
+    private $sai = array();
+    private $eai = array();
+    private $texts = array();
+    private $pdo;
+    public  $npcId;
+    public  $npcName;
+
     public function __construct($pdo, $npcId, $npcName) {
-        $this->pdo = $pdo;
-        $this->npcId = $npcId;
+        $this->pdo     = $pdo;
+        $this->npcId   = $npcId;
         $this->npcName = $npcName;
     }
     
@@ -17,50 +24,64 @@ class NPC
     public function setEmoteWhenFleeing($apply) {
         foreach ($this->sai as $saiItem)
             $saiItem->setFleeingEmoteState($apply);
+        unset($saiItem); // Save some memory
         return '';
     }
-
-    private $sai = array();
-    private $eai = array();
-    private $texts = array();
 
     private $textsItr = 0;
     public function getTextItr() { return $this->textsItr; }
     public function textIncrease() { return $this->textsItr++; }
-    public function resetTextItr() { $this->textsItr = 0; }
+    public function resetTextItr() {
+        $this->textsItr = 0;
+        return $this;
+    }
 
     private $groupItr = 0;
     public function getGroupItr() { return $this->groupItr; }
-    public function groupIncrease() { $this->resetTextItr(); return $this->groupItr++;}
+    public function groupIncrease() {
+        $this->resetTextItr();
+        return $this->groupItr++;
+    }
 
-    public function addSAI($sai) { $this->sai[] = $sai; }
-    public function addEAI($eai) { $this->eai[] = new EAI($eai, $this); }
+    public function addSAI($sai) {
+        $this->sai[] = $sai;
+    }
+    
+    public function addEAI($eai) {
+        $this->eai[] = new EAI($eai, $this);
+    }
+    
     public function addText($item) {
         $this->texts[] = new CreatureAiText($item, $this);
     }
 
     public function convertAllToSAI() {
-        $oldDate = microtime(true);
-        foreach ($this->eai as $eaiItem)
+        foreach ($this->eai as $itr => $eaiItem) {
             $this->addSAI($eaiItem->toSAI($this->pdo));
+            unset($this->eai[$itr]);
+        }
+        unset($eaiItem, $itr); // Save some memory
+    }
+
+    public function updateTalkActions($pairs) {
+        foreach ($this->sai as $saiItem)
+            $saiItem->updateTalkActions($pairs);
+        unset($saiItem); // Save some memory
     }
 
     public function getSmartScripts($write = true) {
         if (!$write) {
             foreach ($this->sai as $itr => $item)
                 $item->toSQL($itr, false);
+            unset($item); // Save some memory
             return;
         }
 
         $output   = '';
         foreach ($this->sai as $itr => $item)
             $output .= $item->toSQL($itr);
+        unset($item); // Save some memory
         return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
-    }
-
-    public function updateTalkActions($pairs) {
-        foreach ($this->sai as $saiItem)
-            $saiItem->updataTalkActions($pairs);
     }
 
     public function getCreatureText() {
@@ -68,6 +89,8 @@ class NPC
         foreach ($this->texts as $textItem)
             if ($textItem->hasFleeEmote())
                 $qty--;
+        
+        unset($textItem); // Save some memory
 
         if ($qty == 0)
             return '';
@@ -77,6 +100,8 @@ class NPC
         $output .= 'INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES' . PHP_EOL;
         foreach ($this->texts as $item)
             $output .= $item->toCreatureText();
+            
+        unset($item); // Save some memory
 
         return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
     }
@@ -89,31 +114,34 @@ class SAI
         $this->_parent = $parent;
     }
     
-    public function updataTalkActions($pairs) {
-        foreach ($this->data['actions'] as $i => $action) {
-            $actionData = $this->data['actions'][$i];
-
-            if (count($actionData) == 0 || $actionData['SAIAction'] != SMART_ACTION_TALK)
+    public function updateTalkActions($pairs) {
+        for ($i = 1; $i <= 3 ; $i++) {
+            $action = &$this->data['actions'][$i];
+            if (count($action) == 0 || $action['SAIAction'] != SMART_ACTION_TALK)
                 continue;
 
             foreach ($pairs as $eaiEntry => $saiEntry) {
-                if ($this->data['actions'][$i]['params'][0] != $eaiEntry)
+                if ($action['params'][0] != $eaiEntry)
                     continue;
 
-                $this->data['actions'][$i]['params'] = array($saiEntry, 0, 0, 0, 0, 0);
+                $action['params'] = array($saiEntry, 0, 0, 0, 0, 0);
             }
+            
+            unset($eaiEntry, $saiEntry); // Save some memory
         }
     }
     
     public function setFleeingEmoteState($apply) {
-    var_dump(gettype($this->data['actions']));
-        foreach ($this->data['actions'] as $i => $action) {
+        $size = count($this->data['actions']);
+        for ($i = 1; $i < $size; $i++) {
+            $action = &$this->data['actions'][$i];
             if (count($action) == 0)
                 break;
 
-            if ($this->data['actions'][$i]['SAIAction'] == SMART_ACTION_FLEE_FOR_ASSIST)
-                $this->data['actions'][$i]['params'][0] = $apply ? 1 : 0;
+            if ($action['SAIAction'] == SMART_ACTION_FLEE_FOR_ASSIST)
+                $action['params'][0] = $apply ? 1 : 0;
         }
+        unset($i, $size); // Save some memory
     }
     
     public function toSQL($index, $write = true) {    
@@ -128,6 +156,7 @@ class SAI
                 if ($action['SAIAction'] == SMART_ACTION_TALK) {
                     foreach ($action['dumpedTexts'] as $text)
                         $this->_parent->addText($text);
+                    unset($text); // Save some memory
                 }
             }
             return;
@@ -238,8 +267,8 @@ class CreatureAiText
         $this->newIndexPair[$this->_item->entry] = $this->_parent->getGroupItr();
 
         $output  = '(' . $this->_parent->npcId . ', ';
-        $output .= $this->_parent->getGroupItr() . ', ';
         $output .= $this->_parent->textIncrease() . ', ';
+        $output .= $this->_parent->getGroupItr() . ', ';
 
         $content = addslashes($this->_item->content_default);
 
