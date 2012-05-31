@@ -159,6 +159,9 @@ class SAI
                     continue;
 
                 $action = $this->data['actions'][$i];
+                
+                if (count($action) == 0)
+                    continue;
 
                 if ($action['SAIAction'] == SMART_ACTION_TALK) {
                     foreach ($action['dumpedTexts'] as $text)
