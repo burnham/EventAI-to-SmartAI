@@ -71,7 +71,7 @@ $storeSize = count($npcStore);
 
 ob_start();
 echo '>> ' . $storeSize . ' different NPC EAIs detected in ' . round(microtime(true) - $oldDate, 4) . ' ms !' . PHP_EOL . PHP_EOL;
-echo 'Converting ... (0%)' . PHP_EOL;
+echo 'Converting ... (  0%)' . PHP_EOL;
 ob_end_flush();
 
 if (file_exists('creature_texts_v2.sql'))
@@ -93,7 +93,7 @@ foreach ($npcStore as $npcId => $npcObj) {
         ob_start();
         //echo ' ' . $npcObj->npcName . ' (Entry #' . $npcObj->npcId . ') successfully converted to SAI!' . PHP_EOL;
         if ($pct != 100)
-            echo 'Converting ... (' . $pct . '%)' . PHP_EOL;
+            printf('Converting ... (%3.3d%%)' . PHP_EOL, $pct);
         else echo 'Done!' . PHP_EOL;
         ob_end_flush();
     }
