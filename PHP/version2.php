@@ -52,10 +52,9 @@ $npcStore        = array();
 
 $oldDate = microtime(true);
 
-//while ($eaiItem = $EAIDataSet->fetch(PDO::FETCH_OBJ)) {
 foreach ($EAIDataSet as $eaiItem) {
     // Prevent calling the NPC's name on each iteration
-    if ($npcName != $eaiItem->creature_id) {
+    if ($npcId != $eaiItem->creature_id) {
         $npcName   = $pdo->query('SELECT name FROM creature_template WHERE entry = ' . $eaiItem->creature_id)->fetch(PDO::FETCH_OBJ)->name;
         $npcId     = $eaiItem->creature_id;
         $npcStore[$npcId] = new NPC($pdo, $npcId, $npcName);
@@ -66,13 +65,32 @@ foreach ($EAIDataSet as $eaiItem) {
     $npcStore[$npcId]->addEAI($eaiItem);
 }
 
+$storeSize = count($npcStore);
+
 ob_start();
-echo '>> ' . count($npcStore) . ' different NPC EAIs detected in ' . round(microtime(true) - $oldDate, 4) . ' ms !' . PHP_EOL;
+echo '>> ' . $storeSize . ' different NPC EAIs detected in ' . round(microtime(true) - $oldDate, 4) . ' ms !' . PHP_EOL . PHP_EOL;
+echo 'Converting ... (0%)' . PHP_EOL;
 ob_end_flush();
 
+unlink('creature_texts_v2.sql');
+unlink('smart_scripts_v2.sql');
+
+$itr = 0;
 foreach ($npcStore as $npcId => $npcObj) {
+    echo $npcObj->countSQLRows() . ' EAI sql row found for NPC ' . $npcObj->npcName . PHP_EOL;
+
     $npcObj->convertAllToSAI();
     $npcObj->getSmartScripts(false); // Dump texts ONLY
     sLog::outSpecificFile('creature_texts_v2.sql', $npcObj->getCreatureText());
     sLog::outSpecificFile('smart_scripts_v2.sql', $npcObj->getSmartScripts());
+   
+    $pct = ++$itr * 100 / $storeSize;
+    if (is_int($pct / 5)) {
+        ob_start();
+        //echo ' ' . $npcObj->npcName . ' (Entry #' . $npcObj->npcId . ') successfully converted to SAI!' . PHP_EOL;
+        if ($pct != 100)
+            echo 'Converting ... (' . $pct . '%)' . PHP_EOL;
+        else echo 'Done!' . PHP_EOL;
+        ob_end_flush();
+    }
 }
