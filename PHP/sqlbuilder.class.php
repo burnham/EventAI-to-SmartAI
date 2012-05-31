@@ -53,12 +53,19 @@ class NPC
     }
     
     public function getCreatureText() {
-        if (count($this->texts) == 0) return '';
+        $qty = count($this->texts);
+        foreach ($this->texts as $itr => $item)
+            $qty -= $item->countFleeEmotes();
+        
+        if ($qty == 0)
+            return '';
+
         $output  = '-- Texts for ' . $this->npcName . PHP_EOL;
         $output .= 'DELETE FROM `creature_text` WHERE `entry`= ' . $this->npcId . ';' . PHP_EOL;
         $output .= 'INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES' . PHP_EOL;
-        foreach ($this->texts as $itr => $item)
+        foreach ($this->texts as $itr => $item) {
             $output .= $item->toCreatureText();
+        }
         return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
     }
 }
@@ -229,6 +236,14 @@ class CreatureAiTexts
         $this->newIndexPairs = array();
     }
     
+    public function countFleeEmotes() {
+        $count = 0;
+        foreach ($this->_items as $item)
+            if ($item->content_default == "%s attempts to run away in fear!")
+                $count++;
+        return $count;
+    }
+    
     public function toCreatureText() {
         $output = '';
         foreach ($this->_items as $item) {
@@ -243,7 +258,8 @@ class CreatureAiTexts
             $output .= '(' . $this->_parent->npcId . ', ';
             $output .= $this->_parent->getGroupItr() . ', ';
             $output .= $this->_parent->textIncrease() . ', ';
-            $output .= '"' . addslashes($item->content_default) . '", ';
+            $content = addslashes($item->content_default);
+            $output .= '"' . str_replace("\'", "'", $content) . '", ';
             $output .= $this->typeToSAI($item) . ', ';
             $output .= $item->language . ', 100, ';
             $output .= $item->emote . ', 0, ';
