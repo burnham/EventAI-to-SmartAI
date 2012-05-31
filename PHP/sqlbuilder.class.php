@@ -8,11 +8,15 @@ class NPC
     private $pdo;
     public  $npcId;
     public  $npcName;
+    private $textGroupId = 0;
+    private $textId      = 0;
+    private $saiItemId   = 0;
 
     public function __construct($pdo, $npcId, $npcName) {
-        $this->pdo     = $pdo;
-        $this->npcId   = $npcId;
-        $this->npcName = $npcName;
+        $this->pdo       = $pdo;
+        $this->npcId     = $npcId;
+        $this->npcName   = $npcName;
+        $this->saiItemId = 0;
     }
     
     public function countSQLRows($isSAI = false) {
@@ -25,35 +29,30 @@ class NPC
         foreach ($this->sai as $saiItem)
             $saiItem->setFleeingEmoteState($apply);
         unset($saiItem); // Save some memory
-        return '';
-    }
-
-    private $textsItr = 0;
-    public function getTextItr() { return $this->textsItr; }
-    public function textIncrease() { return $this->textsItr++; }
-    public function resetTextItr() {
-        $this->textsItr = 0;
-        return $this;
-    }
-
-    private $groupItr = 0;
-    public function getGroupItr() { return $this->groupItr; }
-    public function groupIncrease() {
-        $this->resetTextItr();
-        return $this->groupItr++;
+        return ''; // To avoid a line in SAI::toSQL
     }
 
     public function addSAI($sai) {
         $this->sai[] = $sai;
     }
-    
+
     public function addEAI($eai) {
         $this->eai[] = new EAI($eai, $this);
     }
-    
+
     public function addText($item) {
-        $this->texts[] = new CreatureAiText($item, $this);
+        $textObj = new CreatureAiText($item, $this);
+        $this->texts[] = $textObj;
+        return $textObj;
     }
+
+    public function increaseTextGroupId() { $this->resetTextId(); $this->textGroupId++; return $this; }
+    public function getGroupId()   { return $this->textGroupId; }
+    public function resetTextId()         { $this->textId = 0; }
+    public function getTextId()    { $this->textId++; return $this->textId - 1; }
+    public function getSaiIndex()  { return $this->saiItemId; }
+    public function increaseSaiIndex()    { $this->saiItemId++; return $this; }
+    public function resetSaiIndex()       { $this->saiItemId = 0; }
 
     public function convertAllToSAI() {
         foreach ($this->eai as $itr => $eaiItem) {
@@ -77,10 +76,19 @@ class NPC
             return;
         }
 
-        $output   = '';
-        foreach ($this->sai as $itr => $item)
-            $output .= $item->toSQL($itr);
+        $this->resetSaiIndex();
+
+        $output = '-- SAI: ' . $this->npcName . PHP_EOL;
+        $output .= 'SET @ENTRY := ' . $this->npcId . ';' . PHP_EOL;
+        $output .= 'UPDATE creature_template SET AIName="SmartAI" WHERE entry = @ENTRY;' . PHP_EOL;
+        $output .= 'DELETE FROM creature_ai_scripts WHERE creature_id = @ENTRY;' . PHP_EOL;
+        $output .= 'INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES' . PHP_EOL;
+
+        foreach ($this->sai as $item)
+            $output .= $item->toSQL();
+
         unset($item); // Save some memory
+
         return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
     }
 
@@ -89,7 +97,7 @@ class NPC
         foreach ($this->texts as $textItem)
             if ($textItem->hasFleeEmote())
                 $qty--;
-        
+
         unset($textItem); // Save some memory
 
         if ($qty == 0)
@@ -100,7 +108,7 @@ class NPC
         $output .= 'INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES' . PHP_EOL;
         foreach ($this->texts as $item)
             $output .= $item->toCreatureText();
-            
+
         unset($item); // Save some memory
 
         return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
@@ -113,7 +121,7 @@ class SAI
         $this->data = $array;
         $this->_parent = $parent;
     }
-    
+
     public function updateTalkActions($pairs) {
         for ($i = 1; $i <= 3 ; $i++) {
             $action = &$this->data['actions'][$i];
@@ -126,11 +134,11 @@ class SAI
 
                 $action['params'] = array($saiEntry, 0, 0, 0, 0, 0);
             }
-            
+
             unset($eaiEntry, $saiEntry); // Save some memory
         }
     }
-    
+
     public function setFleeingEmoteState($apply) {
         $size = count($this->data['actions']);
         for ($i = 1; $i < $size; $i++) {
@@ -143,35 +151,31 @@ class SAI
         }
         unset($i, $size); // Save some memory
     }
-    
-    public function toSQL($index, $write = true) {    
+
+    public function toSQL($write = true) {
         //! We do not write anything, we only store texts.
         if (!$write) {
             for ($i = 1; $i <= 3; $i++) {
                 $action = $this->data['actions'][$i];
-                
+
                 if (!isset($action['SAIAction']))
                     continue;
 
                 if ($action['SAIAction'] == SMART_ACTION_TALK) {
                     foreach ($action['dumpedTexts'] as $text)
-                        $this->_parent->addText($text);
+                        $this->_parent->addText($text)->setGroupId($this->_parent->getGroupId())->setTextId($this->_parent->getTextId());
+                    $this->_parent->increaseTextGroupId();
                     unset($text); // Save some memory
                 }
             }
             return;
         }
 
-        $outputString = '-- SAI: ' . $this->data['npcName'] . PHP_EOL;
-        $outputString .= 'SET @ENTRY := ' . $this->data['entryorguid'] . ';' . PHP_EOL;
-        $outputString .= 'UPDATE creature_template SET AIName="SmartAI" WHERE entry = @ENTRY;' . PHP_EOL;
-        $outputString .= 'DELETE FROM creature_ai_scripts WHERE creature_id = @ENTRY;' . PHP_EOL;
-        if ($index == 0)
-            $outputString .= 'INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES' . PHP_EOL;
+        $outputString = '';
 
         for ($i = 1; $i <= 3; $i++) {
             $action = $this->data['actions'][$i];
-        
+
             // Found an empty action. Means no action's following.
             //! Note: Invalid for TWO EAIs. Fix them by hand before running this script.
             //! SELECT * FROM creature_ai_scripts WHERE action1_type= 0 AND (action2_type != 0 OR action3_type != 0);
@@ -180,12 +184,12 @@ class SAI
 
             $outputString .= '(@ENTRY, ';
             $outputString .= $this->data['source_type'] . ', ';
-            $outputString .= ($index + $i - 1) . ', ';
-            
+            $outputString .= $this->_parent->getSaiIndex() . ', ';
+
             $link = 0;
-            if (isset($this->data['actions'][$i + 1]) && count($this->data['actions'][$i + 1]) != 0)
-                $link = ($index + $i);
-            
+            if ($i < 3 && count($this->data['actions'][$i + 1]) != 0)
+                $link = ($this->_parent->getSaiIndex() + 1);
+
             $outputString .= $link . ', ';
 
             if ($i == 1) $outputString .= $this->data['event_type'] . ', ';
@@ -206,8 +210,9 @@ class SAI
             for ($j = 0; $j < 6; $j++)
                 $outputString .= (isset($this->data['actions'][$i]['params'][$j]) ? $this->data['actions'][$i]['params'][$j] : 0) . ', ';
 
-            $this->_parent->resetTextItr();
             $outputString .= '),' . PHP_EOL;
+
+            $this->_parent->increaseSaiIndex();
         }
 
         return $outputString;
@@ -249,12 +254,21 @@ class EAI
 
 class CreatureAiText
 {
+    public $groupId = -1;
+    public $textId  = -1;
+
     public function __construct($item, $parentNpc) {
         $this->_item = $item;
         $this->_parent = $parentNpc;
         $this->newIndexPair = array();
     }
-    
+
+    public function isGroupIdSet() { return $this->groupId != -1; }
+    public function isTextIdSet()  { return $this->textId != -1; }
+
+    public function setGroupId($groupId) { $this->groupId = $groupId; return $this; }
+    public function setTextId($textId)   { $this->textId  = $textId;  return $this; }
+
     public function hasFleeEmote() {
         return ($this->_item->content_default == "%s attempts to run away in fear!");
     }
@@ -264,11 +278,11 @@ class CreatureAiText
         if ($this->hasFleeEmote())
             return $this->_parent->setEmoteWhenFleeing(true);
 
-        $this->newIndexPair[$this->_item->entry] = $this->_parent->getGroupItr();
+        $this->newIndexPair[$this->_item->entry] = $this->groupId;
 
         $output  = '(' . $this->_parent->npcId . ', ';
-        $output .= $this->_parent->textIncrease() . ', ';
-        $output .= $this->_parent->getGroupItr() . ', ';
+        $output .= $this->groupId . ', ';
+        $output .= $this->textId . ', ';
 
         $content = addslashes($this->_item->content_default);
 
