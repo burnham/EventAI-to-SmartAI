@@ -201,9 +201,13 @@ class Utils
         $result = array();
         for ($i = 1; $i < 4; $i++) {
             $eaiAction = $eaiItem->{'action'  . $i . '_type'};
+            if ($eaiAction == 0)
+                continue;
+
             $param1    = $eaiItem->{'action'  . $i . '_param1'};
             $param2    = $eaiItem->{'action'  . $i . '_param2'};
             $param3    = $eaiItem->{'action'  . $i . '_param3'};
+
             switch ($eaiAction)
             {
                 case ACTION_T_TEXT:

@@ -85,6 +85,7 @@ foreach ($npcStore as $npcId => $npcObj) {
 
     $npcObj->convertAllToSAI();
     $npcObj->getSmartScripts(false); // Dump texts ONLY
+
     sLog::outSpecificFile('creature_texts_v2.sql', $npcObj->getCreatureText());
     sLog::outSpecificFile('smart_scripts_v2.sql', $npcObj->getSmartScripts());
    

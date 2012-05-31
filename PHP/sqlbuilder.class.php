@@ -55,24 +55,24 @@ class NPC
     public function resetSaiIndex()       { $this->saiItemId = 0; }
 
     public function convertAllToSAI() {
-        foreach ($this->eai as $itr => $eaiItem) {
+        foreach ($this->eai as $itr => $eaiItem)
             $this->addSAI($eaiItem->toSAI($this->pdo));
-            unset($this->eai[$itr]);
-        }
-        unset($eaiItem, $itr); // Save some memory
+        unset($this->eai, $eaiItem, $itr); // Save some memory
     }
 
-    public function updateTalkActions($pairs) {
+    public function updateTalkActions($eaiEntry, $saiEntry) {
         foreach ($this->sai as $saiItem)
-            $saiItem->updateTalkActions($pairs);
+            $saiItem->updateTalkActions($eaiEntry, $saiEntry);
         unset($saiItem); // Save some memory
     }
 
     public function getSmartScripts($write = true) {
         if (!$write) {
             foreach ($this->sai as $itr => $item)
-                $item->toSQL($itr, false);
+                $item->toSQL(false);
+
             unset($item); // Save some memory
+
             return;
         }
 
@@ -122,21 +122,20 @@ class SAI
         $this->_parent = $parent;
     }
 
-    public function updateTalkActions($pairs) {
+    public function updateTalkActions($eaiValue, $saiValue) {
         for ($i = 1; $i <= 3 ; $i++) {
-            $action = &$this->data['actions'][$i];
-            if (count($action) == 0 || $action['SAIAction'] != SMART_ACTION_TALK)
+            if (!isset($this->data['actions'][$i]))
                 continue;
 
-            foreach ($pairs as $eaiEntry => $saiEntry) {
-                if ($action['params'][0] != $eaiEntry)
-                    continue;
+            $action = $this->data['actions'][$i];
 
-                $action['params'] = array($saiEntry, 0, 0, 0, 0, 0);
-            }
+            if (count($action) == 0 || $action['SAIAction'] != SMART_ACTION_TALK || $eaiValue != $action['params'][0])
+                continue;
 
-            unset($eaiEntry, $saiEntry); // Save some memory
+            $this->data['actions'][$i]['params'] = array($saiValue, 0, 0, 0, 0, 0);
         }
+
+        unset($eaiValue, $saiValue); // Save some memory
     }
 
     public function setFleeingEmoteState($apply) {
@@ -156,10 +155,10 @@ class SAI
         //! We do not write anything, we only store texts.
         if (!$write) {
             for ($i = 1; $i <= 3; $i++) {
-                $action = $this->data['actions'][$i];
-
-                if (!isset($action['SAIAction']))
+                if (!isset($this->data['actions'][$i]))
                     continue;
+
+                $action = $this->data['actions'][$i];
 
                 if ($action['SAIAction'] == SMART_ACTION_TALK) {
                     foreach ($action['dumpedTexts'] as $text)
@@ -174,6 +173,8 @@ class SAI
         $outputString = '';
 
         for ($i = 1; $i <= 3; $i++) {
+            if (!isset($this->data['actions'][$i]))
+                break;
             $action = $this->data['actions'][$i];
 
             // Found an empty action. Means no action's following.
@@ -187,7 +188,7 @@ class SAI
             $outputString .= $this->_parent->getSaiIndex() . ', ';
 
             $link = 0;
-            if ($i < 3 && count($this->data['actions'][$i + 1]) != 0)
+            if (isset($this->data['actions'][$i + 1]) && count($this->data['actions'][$i + 1]) != 0)
                 $link = ($this->_parent->getSaiIndex() + 1);
 
             $outputString .= $link . ', ';
@@ -206,7 +207,7 @@ class SAI
                 $outputString .= '0, 0, 0, 0, ';
 
             $outputString .= $this->data['actions'][$i]['SAIAction'] . ', ';
-            
+
             for ($j = 0; $j < 6; $j++)
                 $outputString .= (isset($this->data['actions'][$i]['params'][$j]) ? $this->data['actions'][$i]['params'][$j] : 0) . ', ';
 
@@ -245,8 +246,9 @@ class EAI
 
         $saiData['saiEntries'] = 0;
         for ($i = 1; $i < 4; $i++)
-            if (count($saiData['actions'][$i]) != 0)
-                $saiData['saiEntries']++;
+            if (isset($saiData['actions'][$i]))
+                if (count($saiData['actions'][$i]) != 0)
+                    $saiData['saiEntries']++;
 
         return new SAI($saiData, $this->_parent);
     }
@@ -258,9 +260,9 @@ class CreatureAiText
     public $textId  = -1;
 
     public function __construct($item, $parentNpc) {
-        $this->_item = $item;
-        $this->_parent = $parentNpc;
-        $this->newIndexPair = array();
+        $this->_item     = $item;
+        $this->_parent   = $parentNpc;
+        $this->_eaiEntry = $item->entry;
     }
 
     public function isGroupIdSet() { return $this->groupId != -1; }
@@ -278,8 +280,6 @@ class CreatureAiText
         if ($this->hasFleeEmote())
             return $this->_parent->setEmoteWhenFleeing(true);
 
-        $this->newIndexPair[$this->_item->entry] = $this->groupId;
-
         $output  = '(' . $this->_parent->npcId . ', ';
         $output .= $this->groupId . ', ';
         $output .= $this->textId . ', ';
@@ -292,7 +292,7 @@ class CreatureAiText
         $output .= $this->_item->emote . ', 0, ';
         $output .= $this->_item->sound . ', "' . addslashes($this->_parent->npcName) . '"),' . PHP_EOL;
 
-        $this->_parent->updateTalkActions($this->newIndexPair);
+        $this->_parent->updateTalkActions($this->_eaiEntry, $this->groupId);
 
         return $output;
     }
