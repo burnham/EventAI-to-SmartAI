@@ -82,6 +82,7 @@ class NPC
         $output .= 'SET @ENTRY := ' . $this->npcId . ';' . PHP_EOL;
         $output .= 'UPDATE creature_template SET AIName="SmartAI" WHERE entry = @ENTRY;' . PHP_EOL;
         $output .= 'DELETE FROM creature_ai_scripts WHERE creature_id = @ENTRY;' . PHP_EOL;
+        $output .= 'DELETE FROM smart_scripts WHERE entryorguid = @ENTRY;' . PHP_EOL;
         $output .= 'INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES' . PHP_EOL;
 
         foreach ($this->sai as $item)
@@ -178,6 +179,7 @@ class SAI
         for ($i = 1; $i <= 3; $i++) {
             if (!isset($this->data['actions'][$i]))
                 break;
+
             $action = $this->data['actions'][$i];
 
             // Found an empty action. Means no action's following.
@@ -187,32 +189,32 @@ class SAI
                 break;
 
             $outputString .= '(@ENTRY, ';
-            $outputString .= $this->data['source_type'] . ', ';
-            $outputString .= $this->_parent->getSaiIndex() . ', ';
+            $outputString .= $this->data['source_type'] . ',';
+            $outputString .= $this->_parent->getSaiIndex() . ',';
 
             $link = 0;
             if (isset($this->data['actions'][$i + 1]) && count($this->data['actions'][$i + 1]) != 0)
                 $link = ($this->_parent->getSaiIndex() + 1);
 
-            $outputString .= $link . ', ';
+            $outputString .= $link . ',';
 
-            if ($i == 1) $outputString .= $this->data['event_type'] . ', ';
-            else         $outputString .= SMART_EVENT_LINK . ', ';
+            if ($i == 1) $outputString .= $this->data['event_type'] . ',';
+            else         $outputString .= SMART_EVENT_LINK . ',';
 
-            $outputString .= $this->data['event_phase'] . ', ';
-            $outputString .= $this->data['event_chance'] . ', ';
-            $outputString .= $this->data['event_flags'] . ', ';
+            $outputString .= $this->data['event_phase'] . ',';
+            $outputString .= $this->data['event_chance'] . ',';
+            $outputString .= $this->data['event_flags'] . ',';
 
             if ($i == 1)
                 for ($j = 1; $j <= 4; $j++)
-                    $outputString .= $this->data['event_params'][$j] . ', ';
+                    $outputString .= $this->data['event_params'][$j] . ',';
             else
                 $outputString .= '0, 0, 0, 0, ';
 
-            $outputString .= $this->data['actions'][$i]['SAIAction'] . ', ';
+            $outputString .= $this->data['actions'][$i]['SAIAction'] . ',';
 
             for ($j = 0; $j < 6; $j++)
-                $outputString .= (isset($this->data['actions'][$i]['params'][$j]) ? $this->data['actions'][$i]['params'][$j] : 0) . ', ';
+                $outputString .= (isset($this->data['actions'][$i]['params'][$j]) ? $this->data['actions'][$i]['params'][$j] : 0) . ',';
 
             $outputString .= '),' . PHP_EOL;
 
@@ -283,16 +285,16 @@ class CreatureAiText
         if ($this->hasFleeEmote())
             return $this->_parent->setEmoteWhenFleeing(true);
 
-        $output  = '(' . $this->_parent->npcId . ', ';
-        $output .= $this->groupId . ', ';
-        $output .= $this->textId . ', ';
+        $output  = '(' . $this->_parent->npcId . ',';
+        $output .= $this->groupId . ',';
+        $output .= $this->textId . ',';
 
         $content = addslashes($this->_item->content_default);
 
-        $output .= '"' . str_replace("\'", "'", $content) . '", ';
-        $output .= $this->typeToSAI($this->_item) . ', ';
-        $output .= $this->_item->language . ', 100, ';
-        $output .= $this->_item->emote . ', 0, ';
+        $output .= ' "' . str_replace("\'", "'", $content) . '", ';
+        $output .= $this->typeToSAI($this->_item) . ',';
+        $output .= $this->_item->language . ',100,';
+        $output .= $this->_item->emote . ',0,';
         $output .= $this->_item->sound . ', "' . addslashes($this->_parent->npcName) . '"),' . PHP_EOL;
 
         $this->_parent->updateTalkActions($this->_eaiEntry, $this->groupId);
