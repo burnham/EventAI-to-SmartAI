@@ -1,10 +1,4 @@
 <?php
-
-$host = 'localhost';
-$dbName = '335_world';
-$username = 'root';
-$password = '';
-
 require_once('./utils.php');
 
 # ############# DO NOT EDIT PAST THIS LINE, UNLESS YOU KNOW WHAT YOU ARE DOING ############# #
@@ -21,6 +15,20 @@ echo "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\" . PHP_EOL;
 echo "                                 C O R E  /\\___/" . PHP_EOL;
 echo "http://TrinityCore.org                    \\/__/\n" . PHP_EOL;
 ob_end_flush();
+
+
+$host = 'localhost';
+$dbName = 'world';
+$username = 'root';
+$password = '';
+if ($iniFile = parse_ini_file('config.ini')) {
+    $host = $iniFile['hostname'];
+    $dbName = $iniFile['worldDatabase'];
+    $username = $iniFile['userName'];
+    $password = $iniFile['password'];
+    echo 'Parsed config file!' . PHP_EOL;
+}
+
 
 try {
     $pdoOptions[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
@@ -69,20 +77,20 @@ unset($eaiItem, $npcName, $npcId, $EAIDataSet); // Save some memory
 
 $storeSize = count($npcStore);
 
+# Delete previous files
+if (file_exists('creature_texts_v2.sql'))
+    unlink('creature_texts_v2.sql');
+
+if (file_exists('smart_scripts_v2.sql'))
+    unlink('smart_scripts_v2.sql');
+
 ob_start();
 echo '>> ' . $storeSize . ' different NPC EAIs detected in ' . round(microtime(true) - $oldDate, 4) . ' ms !' . PHP_EOL . PHP_EOL;
 echo 'Converting ... (  0%)' . PHP_EOL;
 ob_end_flush();
 
-if (file_exists('creature_texts_v2.sql'))
-    unlink('creature_texts_v2.sql');
-if (file_exists('smart_scripts_v2.sql'))
-    unlink('smart_scripts_v2.sql');
-
 $itr = 0;
 foreach ($npcStore as $npcId => $npcObj) {
-    // echo $npcObj->countSQLRows() . ' EAI sql row found for NPC ' . $npcObj->npcName . PHP_EOL;
-
     $npcObj->convertAllToSAI();
     $npcObj->getSmartScripts(false); // Dump texts ONLY
 
@@ -92,7 +100,6 @@ foreach ($npcStore as $npcId => $npcObj) {
     $pct = ++$itr * 100 / $storeSize;
     if (is_int($pct / 5)) {
         ob_start();
-        //echo ' ' . $npcObj->npcName . ' (Entry #' . $npcObj->npcId . ') successfully converted to SAI!' . PHP_EOL;
         if ($pct != 100)
             printf('Converting ... (%3.3d%%)' . PHP_EOL, $pct);
         else echo 'Done!' . PHP_EOL;
