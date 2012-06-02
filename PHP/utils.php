@@ -7,39 +7,8 @@ define('__FIXME__',  -1);
 
 function errorHandler($errno, $errstr, $errfile, $errline)
 {
-    if (!(error_reporting() & $errno)) {
-        // This error code is not included in error_reporting
-        return;
-    }
-
-    switch ($errno) {
-        case E_USER_ERROR:
-            echo "ERROR: [$errno] $errstr" . PHP_EOL;
-            echo "  Fatal error on line $errline in file $errfile" . PHP_EOL;
-            echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")" . PHP_EOL;
-            echo "Aborting..." . PHP_EOL;
-            exit(1);
-            break;
-        case E_USER_WARNING:
-        case E_WARNING:
-            echo "WARNING [$errno] $errstr" . PHP_EOL;
-            echo "  Fatal error on line $errline in file $errfile" . PHP_EOL;
-            exit(1);
-            break;
-        case E_USER_NOTICE:
-            echo "NOTICE [$errno] $errstr" . PHP_EOL;
-            echo "  Fatal error on line $errline in file $errfile" . PHP_EOL;
-            exit(1);
-            break;
-        default:
-            echo "Unknown error type: [$errno] $errstr" . PHP_EOL;
-            echo "  On line $errline in file $errfile" . PHP_EOL;
-            exit(1);
-            break;
-    }
-
-    /* Don't execute PHP internal error handler */
-    return true;
+    return false;
+    exit(5);
 }
 
 set_error_handler("errorHandler");
@@ -73,12 +42,7 @@ class Utils
                 return true;
         }
     }
-    
-    static function writeToFile($file, $str)
-    {
-        fwrite($file, $str . PHP_EOL);
-    }
-    
+
     static function SAI2EAIFlag($flag)
     {
         // Rather than making shitty stuff, lets do it plain.
@@ -199,11 +163,13 @@ class Utils
     
     static function buildSAIAction($eaiItem, $pdo) {
         $result = array();
-        for ($i = 1; $i < 4; $i++) {
-            $eaiAction = $eaiItem->{'action'  . $i . '_type'};
-            if ($eaiAction == 0)
-                continue;
 
+        for ($i = 1; $i <= 3; $i++) {
+            $eaiAction = $eaiItem->{'action'  . $i . '_type'};
+
+            if ($eaiAction == 0)
+                break;
+            
             $param1    = $eaiItem->{'action'  . $i . '_param1'};
             $param2    = $eaiItem->{'action'  . $i . '_param2'};
             $param3    = $eaiItem->{'action'  . $i . '_param3'};
@@ -215,60 +181,64 @@ class Utils
                         'dumpedTexts' => $pdo->query("SELECT * FROM creature_ai_texts WHERE entry IN (" . $param1 . "," . $param2 . "," . $param3 . ")")->fetchAll(PDO::FETCH_OBJ),
                         'SAIAction'   => SMART_ACTION_TALK,
                         'params'      => array($param1, $param2, $param3, 0, 0, 0),
-                        'targets'     => -1
+                        'target'      => SMART_TARGET_NONE,
+                        'commentType' => "_npcName_ - On _eventName_ - Talk"
                     );
                     break;
                 case ACTION_T_SET_FACTION:
                     $result[$i] = array(
-                        'SAIAction'  => SMART_ACTION_SET_FACTION,
-                        'params'     => array($param1, $param2, $param3, 0, 0, 0),
-                        'targets'    => -1
+                        'SAIAction'   => SMART_ACTION_SET_FACTION,
+                        'params'      => array($param1, $param2, $param3, 0, 0, 0),
+                        'target'      => SMART_TARGET_NONE,
+                        'commentType' => "_npcName_ - On _eventName_ - Set faction to " . $param1
                     );
                     break;
                 case ACTION_T_MORPH_TO_ENTRY_OR_MODEL:
                     $result[$i] = array(
-                        'SAIAction'  => SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL,
-                        'params'     => array($param1, $param2, $param3, 0, 0, 0),
-                        'targets'    => -1
+                        'SAIAction'   => SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL,
+                        'params'      => array($param1, $param2, $param3, 0, 0, 0),
+                        'target'      => SMART_TARGET_NONE,
+                        'commentType' => "_npcName_ - On _eventName_ - Morph"
                     );
                     break;
                 case ACTION_T_SOUND:
                     $result[$i] = array(
-                        'SAIAction'  => SMART_ACTION_SOUND,
-                        'params'     => array($param1, max(0, min($param2, 1)), 0, 0, 0, 0), // param2 = 0: self, else all in vis range
-                        'targets'    => -1
+                        'SAIAction'   => SMART_ACTION_SOUND,
+                        'params'      => array($param1, max(0, min($param2, 1)), 0, 0, 0, 0), // param2 = 0: self, else all in vis range
+                        'target'      => SMART_TARGET_NONE,
+                        'commentType' => "_npcName_ - On _eventName_ - Play sound"
                     );
                     break;
                 case ACTION_T_EMOTE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_PLAY_EMOTE,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_RANDOM_EMOTE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_RANDOM_EMOTE,
                         'params'     => array($param1, $param2, $param3, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_CAST:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_CAST,
                         'params'     => array($param1, $param3, 0, 0, 0, 0),
-                        'target'     => Utils::EAITargetToSAI($param2)
+                        'target'     => $param2 + 1
                     );
                     break;
                 case ACTION_T_THREAT_SINGLE_PCT:
-                    $target = Utils::EAITargetToSAI($param2);
+                    $target = $param2 + 1;
                 case ACTION_T_THREAT_ALL_PCT:
                     //! Wiki is wrong here, we can have two arguments. First is added threat, second is removed threat.
                     //! Threat addition has priority over threat reduction!
                     $result[$i] = array(
                         'SAIAction'  => ($eaiAction == ACTION_T_THREAT_SINGLE_PCT ? SMART_ACTION_THREAT_SINGLE_PCT : SMART_ACTION_THREAT_ALL_PCT),
                         'params'     => array(max(0, $param1), min(0, $param1), 0, 0, 0, 0),
-                        'targets'    => (isset($target) ? $target : -1)
+                        'target'     => (isset($target) ? $target : SMART_TARGET_NONE)
                     );
                     break;
                 case ACTION_T_QUEST_EVENT_ALL:
@@ -276,20 +246,20 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     if ($eaiAction == ACTION_T_QUEST_EVENT)
-                        $result[$i]['targets'] = Utils::EAITargetToSAI($param2);
+                        $result[$i]['target' ] = $param2 + 1;
                     break;
                 case ACTION_T_CAST_EVENT_ALL:
                 case ACTION_T_CAST_EVENT:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SEND_CASTCREATUREORGO,
                         'params'     => array($param1, $param2, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     if ($eaiAction == ACTION_T_CAST_EVENT)
-                        $result[$i]['targets'] = Utils::EAITargetToSAI($param3);
+                        $result[$i]['target' ] = $param3 + 1;
                     break;
                 case ACTION_T_SET_UNIT_FIELD:
                     //! Not a  100% sure on this, requires deeper research. (Horn's comments based)
@@ -297,7 +267,7 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_UNIT_FIELD_BYTES_1,
                         'params'     => array($param2, 0, 0, 0, 0, 0),
-                        'targets'    => Utils::EAITargetToSAI($param3)
+                        'target'     => $param3 + 1
                     );
                     break;
                 case ACTION_T_SET_UNIT_FLAG:
@@ -305,28 +275,28 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => ($eaiAction == ACTION_T_SET_UNIT_FLAG ? SMART_ACTION_SET_UNIT_FLAG : SMART_ACTION_REMOVE_UNIT_FLAG),
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => Utils::EAITargetToSAI($param2)
+                        'target'     => $param2 + 1
                     );
                     break;
                 case ACTION_T_AUTO_ATTACK:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_AUTO_ATTACK,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_COMBAT_MOVEMENT:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_ALLOW_COMBAT_MOVEMENT,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_SET_PHASE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_EVENT_PHASE,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_INC_PHASE:
@@ -335,14 +305,14 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_INC_EVENT_PHASE,
                         'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_EVADE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_EVADE,
                         'params'     => array(0, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_FLEE_FOR_ASSIST:
@@ -352,14 +322,14 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_FLEE_FOR_ASSIST,
                         'params'     => array(0, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_REMOVEAURASFROMSPELL:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_REMOVEAURASFROMSPELL,
                         'params'     => array($param2, 0, 0, 0, 0, 0),
-                        'targets'    => Utils::EAITargetToSAI($param1)
+                        'target'     => $param1 + 1
                     );
                     break;
                 case ACTION_T_RANGED_MOVEMENT:
@@ -367,14 +337,14 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => __FIXME__,
                         'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_RANDOM_PHASE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_RANDOM_PHASE,
                         'params'     => array($param1, $param2, $param3, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_RANDOM_PHASE_RANGE:
@@ -382,100 +352,99 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_RANDOM_PHASE_RANGE,
                         'params'     => array($param1, $param2),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_SUMMON:
                     //! Forcing SummonType to 1 as EAI doesnt handle it
                     $result[$i] = array(
-                        'spawnTimeSecs' => $pdo->query('SELECT spawntimesecs FROM creature_ai_summons WHERE id = ' . $param3)->fetch(PDO::FETCH_OBJ)->spawntimesecs,
                         'SAIAction'     => SMART_ACTION_SUMMON_CREATURE,
-                        'params'        => array($param1, 1, 'selfArray::spawnTimeSecs', 0, 0, 0),
-                        'targets'       => Utils::EAITargetToSAI($param2)
+                        'params'        => array($param1, 1, $param3, 0, 0, 0),
+                        'target'        => $param2 + 1
                     );
                     break;
                 case ACTION_T_KILLED_MONSTER:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_CALL_KILLEDMONSTER,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => Utils::EAITargetToSAI($param2)
+                        'target'     => $param2 + 1
                     );
                     break;
                 case ACTION_T_SET_INST_DATA:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_INST_DATA,
                         'params'     => array($param1, $param2),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_SET_INST_DATA64:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_INST_DATA64,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => Utils::EAITargetToSAI($param2)
+                        'target'     => $param2 + 1
                     );
                     break;
                 case ACTION_T_UPDATE_TEMPLATE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_UPDATE_TEMPLATE,
                         'params'     => array($param1, $param2, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_DIE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_DIE,
                         'params'     => array(0, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_ZONE_COMBAT_PULSE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_IN_COMBAT_WITH_ZONE,
                         'params'     => array(0, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_CALL_FOR_HELP:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_CALL_FOR_HELP,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_SET_SHEATH:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_SHEATH,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_FORCE_DESPAWN:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_FORCE_DESPAWN,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_SET_INVINCIBILITY_HP_LEVEL:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_MOUNT_TO_ENTRY_OR_MODEL:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL,
                         'params'     => array($param1, $param2, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_SET_PHASE_MASK:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_INGAME_PHASE_MASK,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_SET_STAND_STATE:
@@ -484,21 +453,21 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => __FIXME__,
                         'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_MOVE_RANDOM_POINT:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_RANDOM_MOVE,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_SET_VISIBILITY:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_VISIBILITY,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_SET_ACTIVE:
@@ -506,40 +475,49 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_ACTIVE,
                         'params'     => array(0, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_SET_AGGRESSIVE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_REACT_STATE,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_ATTACK_START_PULSE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_ATTACK_START,
                         'params'     => array(0, 0, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_SUMMON_GO:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SUMMON_GO,
                         'params'     => array($param1, $param2, 0, 0, 0, 0),
-                        'targets'    => -1
+                        'target'     => SMART_TARGET_NONE
+                    );
+                    break;
+                case ACTION_T_NONE:
+                    $result[$i] = array(
+                        'SAIAction'  => SMART_ACTION_NONE,
+                        'params'     => array(0, 0, 0, 0, 0, 0),
+                        'target'     => SMART_TARGET_NONE
                     );
                     break;
                 case ACTION_T_RANDOM_SOUND:
                     //! No event for this in SAI, needs to be handled though imo
-                    $result[$i] = array();
-                    break;
-                // These are unused
                 case ACTION_T_RANDOM_SAY:
                 case ACTION_T_RANDOM_YELL:
                 case ACTION_T_RANDOM_TEXTEMOTE:
                 default:
-                    $result[$i] = array();
+                    $result[$i] = array(
+                        'SAIAction'  => __FIXME__,
+                        'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__),
+                        'target'     => SMART_TARGET_NONE
+                    );
+                    break;
             }
         }
         
@@ -557,6 +535,7 @@ class Utils
         return bindec(substr($saiPhase, -strlen(decbin($eaiPhase))));
     }
     
+    // Not used, here as remnant to understand how targets are converted.
     static function EAITargetToSAI($eaiTarget) {
         //! Targets are the same, except SAI has then offsetted by +1.
         return $eaiTarget + 1;

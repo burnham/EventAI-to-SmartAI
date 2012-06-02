@@ -28,7 +28,6 @@ class NPC
     public function setEmoteWhenFleeing($apply) {
         foreach ($this->sai as $saiItem)
             $saiItem->setFleeingEmoteState($apply);
-        unset($saiItem); // Save some memory
         return ''; // To avoid a line in SAI::toSQL
     }
 
@@ -55,15 +54,14 @@ class NPC
     public function resetSaiIndex()       { $this->saiItemId = 0; }
 
     public function convertAllToSAI() {
-        foreach ($this->eai as $itr => $eaiItem)
+        foreach ($this->eai as $eaiItem)
             $this->addSAI($eaiItem->toSAI($this->pdo));
-        unset($this->eai, $eaiItem, $itr); // Save some memory
+        unset($this->eai); // Save some memory
     }
 
     public function updateTalkActions($eaiEntry, $saiEntry) {
         foreach ($this->sai as $saiItem)
             $saiItem->updateTalkActions($eaiEntry, $saiEntry);
-        unset($saiItem); // Save some memory
     }
 
     public function getSmartScripts($write = true) {
@@ -96,7 +94,7 @@ class NPC
     public function getCreatureText() {
         $qty = count($this->texts);
         foreach ($this->texts as $textItem)
-            if ($textItem->hasFleeEmote())
+            if ($textItem->isFleeEmote())
                 $qty--;
 
         unset($textItem); // Save some memory
@@ -198,23 +196,31 @@ class SAI
 
             $outputString .= $link . ',';
 
-            if ($i == 1) $outputString .= $this->data['event_type'] . ',';
-            else         $outputString .= SMART_EVENT_LINK . ',';
+            # Writing event type, phase, chance, flags and parameters
+            if ($link == 0)
+                $outputString .= $this->data['event_type'] . ',';
+            else            $outputString .= SMART_EVENT_LINK . ',';
 
             $outputString .= $this->data['event_phase'] . ',';
             $outputString .= $this->data['event_chance'] . ',';
             $outputString .= $this->data['event_flags'] . ',';
 
+            #! All EAI actions that have the same event are linked. The first one triggers the second, which triggers the third.
+            #! Extra linking, based on parameters sharing between events, should be implemented (See Hogger (#448))
             if ($i == 1)
                 for ($j = 1; $j <= 4; $j++)
                     $outputString .= $this->data['event_params'][$j] . ',';
             else
-                $outputString .= '0, 0, 0, 0, ';
+                $outputString .= '0,0,0,0,';
 
+            # Writing action parameters
             $outputString .= $this->data['actions'][$i]['SAIAction'] . ',';
 
             for ($j = 0; $j < 6; $j++)
                 $outputString .= (isset($this->data['actions'][$i]['params'][$j]) ? $this->data['actions'][$i]['params'][$j] : 0) . ',';
+
+            # Writing targets
+                $outputString .= $this->data['actions'][$i]['target'] . ',';
 
             $outputString .= '),' . PHP_EOL;
 
@@ -244,8 +250,19 @@ class EAI
         
         $saiData['event_params'] = Utils::convertParamsToSAI($this->_eaiItem);
 
-        $saiData['actions']      = array();
         $saiData['actions']      = Utils::buildSAIAction($this->_eaiItem, $pdoDriver);
+        
+        # Build target data
+        $saiData['targetData']   = array(
+            'target_type' => SMART_TARGET_NONE,
+            'position'    => array(),
+            'spawnTimeSecs' => 0
+        );
+        
+        // For some awkward reason, $saiData['actions'] can become NULL.
+        // foreach ($saiData['actions'] as $i => &$actionArray) {
+        // for ($i = 1; $i <= 3; $i++) {
+        // }
 
         $saiData['event_phase']  = Utils::generateSAIPhase($this->_eaiItem->event_inverse_phase_mask);
 
@@ -276,13 +293,13 @@ class CreatureAiText
     public function setGroupId($groupId) { $this->groupId = $groupId; return $this; }
     public function setTextId($textId)   { $this->textId  = $textId;  return $this; }
 
-    public function hasFleeEmote() {
-        return ($this->_item->content_default == "%s attempts to run away in fear!");
+    public function isFleeEmote() {
+        return ($this->_item->entry == -47);
     }
 
     public function toCreatureText() {
         // Ignore flee emotes.
-        if ($this->hasFleeEmote())
+        if ($this->isFleeEmote())
             return $this->_parent->setEmoteWhenFleeing(true);
 
         $output  = '(' . $this->_parent->npcId . ',';
@@ -291,7 +308,7 @@ class CreatureAiText
 
         $content = addslashes($this->_item->content_default);
 
-        $output .= ' "' . str_replace("\'", "'", $content) . '", ';
+        $output .= ' "' . str_replace("\'", "'", $content) . '",';
         $output .= $this->typeToSAI($this->_item) . ',';
         $output .= $this->_item->language . ',100,';
         $output .= $this->_item->emote . ',0,';

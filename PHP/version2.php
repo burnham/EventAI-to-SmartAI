@@ -26,7 +26,7 @@ if ($iniFile = parse_ini_file('config.ini')) {
     $dbName = $iniFile['worldDatabase'];
     $username = $iniFile['userName'];
     $password = $iniFile['password'];
-    echo 'Parsed config file!' . PHP_EOL;
+    echo '>> Config file found and parsed sucessfully.' . PHP_EOL;
 }
 
 
@@ -42,7 +42,6 @@ echo PHP_EOL . 'Selecting all EventAIs from the database ...' . PHP_EOL;
 ob_end_flush();
 
 $oldDate = microtime(true);
-# Debug - limit to 500 for developping purposes
 $EAIDataSet = $pdo->query("SELECT * FROM creature_ai_scripts ORDER BY id")->fetchAll(PDO::FETCH_OBJ);
 
 ob_start();
@@ -50,19 +49,16 @@ echo '>> Gotten ' . count($EAIDataSet) . ' entries in ' . round(microtime(true) 
 echo PHP_EOL . 'Grouping entries by NPC ...' . PHP_EOL;
 ob_end_flush();
 
-# Create files
-$sqlOutputSAIs = fopen('./eai2sai.sql', 'a');
+$npcName   = "";  // Save the last iterated NPC name
+$npcId     = 0;   // And its entry in the table.
 
-$npcName         = "";  // Save the last iterated NPC name
-$npcId           = 0;   // And its entry in the table.
+$npcStore  = array();
 
-$npcStore        = array();
-
-$oldDate = microtime(true);
+$oldDate   = microtime(true);
 
 foreach ($EAIDataSet as $eaiItem) {
-    // Prevent calling the NPC's name on each iteration
     if ($npcId != $eaiItem->creature_id) {
+        # New NPC. Create a corresponding NPC class instance.
         $npcName   = $pdo->query('SELECT name FROM creature_template WHERE entry = ' . $eaiItem->creature_id)->fetch(PDO::FETCH_OBJ)->name;
         $npcId     = $eaiItem->creature_id;
         $npcStore[$npcId] = new NPC($pdo, $npcId, $npcName);
@@ -94,15 +90,20 @@ foreach ($npcStore as $npcId => $npcObj) {
     $npcObj->convertAllToSAI();
     $npcObj->getSmartScripts(false); // Dump texts ONLY
 
+    // The order is important here, CreatureText changes data on the parent, thus on all the current NPC's SAI.
     sLog::outSpecificFile('creature_texts_v2.sql', $npcObj->getCreatureText());
     sLog::outSpecificFile('smart_scripts_v2.sql', $npcObj->getSmartScripts());
    
     $pct = ++$itr * 100 / $storeSize;
     if (is_int($pct / 5)) {
         ob_start();
-        if ($pct != 100)
-            printf('Converting ... (%3.3d%%)' . PHP_EOL, $pct);
-        else echo 'Done!' . PHP_EOL;
+        printf('Converting ... (%3.3d%%)' . PHP_EOL, $pct);
+        if ($pct == 100)
+            echo 'Done!' . PHP_EOL;
         ob_end_flush();
     }
 }
+
+unset($npcId, $npcObj, $itr, $npcStore, $storeSize, $oldDate, $npcName, $pdo, $host, $dbName $user, $password, $iniFile, $pdoOptions); // Prevent garbage collection mishaps
+
+echo PHP_EOL . 'Warpten (http://github.com/Warpten) thanks you for using this awesome piece of PHP shit!' . PHP_EOL;
