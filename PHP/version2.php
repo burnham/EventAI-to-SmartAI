@@ -82,10 +82,11 @@ if (file_exists('smart_scripts_v2.sql'))
 
 ob_start();
 echo '>> ' . $storeSize . ' different NPC EAIs detected in ' . round(microtime(true) - $oldDate, 4) . ' ms !' . PHP_EOL . PHP_EOL;
-echo 'Converting ... (  0%)' . PHP_EOL;
+printf('Converting [%3.3d%%] ', 0);
 ob_end_flush();
 
 $itr = 0;
+$oldDate = microtime(true);
 foreach ($npcStore as $npcId => $npcObj) {
     $npcObj->convertAllToSAI();
     $npcObj->getSmartScripts(false); // Dump texts ONLY
@@ -93,17 +94,16 @@ foreach ($npcStore as $npcId => $npcObj) {
     // The order is important here, CreatureText changes data on the parent, thus on all the current NPC's SAI.
     sLog::outSpecificFile('creature_texts_v2.sql', $npcObj->getCreatureText());
     sLog::outSpecificFile('smart_scripts_v2.sql', $npcObj->getSmartScripts());
-   
-    $pct = ++$itr * 100 / $storeSize;
-    if (is_int($pct / 5)) {
-        ob_start();
-        printf('Converting ... (%3.3d%%)' . PHP_EOL, $pct);
-        if ($pct == 100)
-            echo 'Done!' . PHP_EOL;
-        ob_end_flush();
-    }
+
+    ob_start();
+    $pct = (++$itr) * 100 / $storeSize;
+    if (is_int($pct / 5))
+        printf(PHP_EOL . 'Converting [%3.3d%%] ', $pct);
+    ob_end_flush();
 }
 
-unset($npcId, $npcObj, $itr, $npcStore, $storeSize, $oldDate, $npcName, $pdo, $host, $dbName $user, $password, $iniFile, $pdoOptions); // Prevent garbage collection mishaps
+unset($npcId, $npcObj, $itr, $npcStore, $storeSize, $npcName, $pdo, $host, $dbName, $user, $password, $iniFile, $pdoOptions); // Prevent garbage collection mishaps
 
-echo PHP_EOL . 'Warpten (http://github.com/Warpten) thanks you for using this awesome piece of PHP shit!' . PHP_EOL;
+echo PHP_EOL . 'Finished parsing data in ' . round(microtime(true) - $oldDate, 4) . ' ms!' . PHP_EOL;
+
+unset($oldDate);
