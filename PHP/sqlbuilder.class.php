@@ -235,6 +235,9 @@ class SAI
                 $outputString .= $this->data['actions'][$i]['target'] . '0,0,0,0,0,0,0,';
 
             # Build the comment, and we're done.
+            
+            //$outputString .= $this->buildComment($this->data['actions'][$i]['commentType']);
+            $outputString .= $this->data['actions'][$i]['commentType'];
                 
             $outputString .= '),' . PHP_EOL;
 
