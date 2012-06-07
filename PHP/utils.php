@@ -229,7 +229,7 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_CAST,
                         'params'     => array($param1, $param3, 0, 0, 0, 0),
-                        'target'     => $param2 + 1
+                        'target'     => $param2 + 1,
                         'commentType' => "_npcName_ - On _eventName_ - Cast spell #" . $param1
                     );
                     break;
@@ -241,7 +241,7 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => ($eaiAction == ACTION_T_THREAT_SINGLE_PCT ? SMART_ACTION_THREAT_SINGLE_PCT : SMART_ACTION_THREAT_ALL_PCT),
                         'params'     => array(max(0, $param1), min(0, $param1), 0, 0, 0, 0),
-                        'target'     => (isset($target) ? $target : SMART_TARGET_NONE)
+                        'target'     => (isset($target) ? $target : SMART_TARGET_NONE),
                         'commentType' => "_npcName_ - On _eventName_ - Add threat"
                     );
                     break;
@@ -535,7 +535,7 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_ATTACK_START,
                         'params'     => array(0, 0, 0, 0, 0, 0),
-                        'target'     => SMART_TARGET_NONE
+                        'target'     => SMART_TARGET_NONE,
                         'commentType' => "_npcName_ - On _eventName_ - Start attacking"
                     );
                     break;
@@ -570,8 +570,8 @@ class Utils
                     break;
             }
             
-            if (!isset($result['isSpecialHandler']))
-                $result['isSpecialHandler'] = false;
+            if (!isset($result[$i]['isSpecialHandler']))
+                $result[$i]['isSpecialHandler'] = false;
         }
         
         return $result;

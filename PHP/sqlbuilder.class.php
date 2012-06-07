@@ -225,7 +225,7 @@ class SAI
             if ($this->data['actions'][$i]['SAIAction'] == SMART_ACTION_SUMMON_CREATURE && $this->data['actions'][$i]['isSpecialHandler'])
             {
                 $summonData = $this->data['actions'][$i]['extraData'];
-                $outputSring .= SMART_TARGET_POSITION . ',0,0,0,';
+                $outputString .= SMART_TARGET_POSITION . ',0,0,0,';
                 $outputString .= $summonData->position_x . ',';
                 $outputString .= $summonData->position_y . ',';
                 $outputString .= $summonData->position_z . ',';
