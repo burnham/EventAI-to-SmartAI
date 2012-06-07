@@ -186,7 +186,7 @@ class SAI
             if (count($action) == 0)
                 break;
 
-            $outputString .= '(@ENTRY, ';
+            $outputString .= '(@ENTRY,';
             $outputString .= $this->data['source_type'] . ',';
             $outputString .= $this->_parent->getSaiIndex() . ',';
 
