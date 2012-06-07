@@ -389,6 +389,7 @@ class Utils
                         'params'        => array($param1, 0, 0, 0, 0, 0),
                         'target'        => SMART_TARGET_NONE,
                         'commentType'   => "_npcName_ - On _eventName_ - Summon NPC " . $param1,
+                        'isSpecialHandler' => true,
                     );
                     break;
                 case ACTION_T_KILLED_MONSTER:
@@ -568,6 +569,9 @@ class Utils
                     );
                     break;
             }
+            
+            if (!isset($result['isSpecialHandler']))
+                $result['isSpecialHandler'] = false;
         }
         
         return $result;
