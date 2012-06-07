@@ -237,7 +237,7 @@ class SAI
             # Build the comment, and we're done.
             
             //$outputString .= $this->buildComment($this->data['actions'][$i]['commentType']);
-            $outputString .= $this->data['actions'][$i]['commentType'];
+            $outputString .= '"' . $this->data['actions'][$i]['commentType'] . '"';
                 
             $outputString .= '),' . PHP_EOL;
 
