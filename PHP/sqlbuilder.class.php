@@ -199,7 +199,8 @@ class SAI
             # Writing event type, phase, chance, flags and parameters
             if ($link == 0)
                 $outputString .= $this->data['event_type'] . ',';
-            else            $outputString .= SMART_EVENT_LINK . ',';
+            else
+                $outputString .= SMART_EVENT_LINK . ',';
 
             $outputString .= $this->data['event_phase'] . ',';
             $outputString .= $this->data['event_chance'] . ',';
@@ -236,8 +237,8 @@ class SAI
 
             # Build the comment, and we're done.
             
-            //$outputString .= $this->buildComment($this->data['actions'][$i]['commentType']);
-            $outputString .= '"' . $this->data['actions'][$i]['commentType'] . '"';
+            $outputString .= '"' . $this->buildComment($action['commentType']) . '"';
+            //$outputString .= '"' . $this->data['actions'][$i]['commentType'] . '"';
                 
             $outputString .= '),' . PHP_EOL;
 
@@ -245,6 +246,17 @@ class SAI
         }
 
         return $outputString;
+    }
+    
+    private function buildComment($commentType)
+    {
+        $match = array(
+            '_npcName_' => $this->_parent->npcName,
+            '_eventName_' => Utils::GetEventString($this->data['event_type'], $this->data['event_params'])
+        );
+        $commentType = str_replace(array_keys($match), array_values($match), $commentType);
+        // Some other parsing and fixing may be needed here
+        return $commentType;
     }
 }
 
