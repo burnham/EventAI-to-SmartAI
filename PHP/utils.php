@@ -141,9 +141,9 @@ class Utils
             case SMART_EVENT_UPDATE_OOC:
                 return "OOC";
             case SMART_EVENT_HEALT_PCT:
-                return "At ${param1}% health";
+                return "At ${param2}% health";
             case SMART_EVENT_MANA_PCT:
-                return "At ${param1}% mana";
+                return "At ${param2}% mana";
             case SMART_EVENT_AGGRO:
                 return "On aggro";
             case SMART_EVENT_KILL:
