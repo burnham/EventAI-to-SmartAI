@@ -178,7 +178,7 @@ class Utils
             {
                 case ACTION_T_TEXT:
                     $result[$i] = array(
-                        'dumpedTexts' => $pdo->query("SELECT * FROM creature_ai_texts WHERE entry IN (" . $param1 . "," . $param2 . "," . $param3 . ")")->fetchAll(PDO::FETCH_OBJ),
+                        'extraData'   => $pdo->query("SELECT * FROM creature_ai_texts WHERE entry IN (" . $param1 . "," . $param2 . "," . $param3 . ")")->fetchAll(PDO::FETCH_OBJ),
                         'SAIAction'   => SMART_ACTION_TALK,
                         'params'      => array($param1, $param2, $param3, 0, 0, 0),
                         'target'      => SMART_TARGET_NONE,
@@ -379,7 +379,16 @@ class Utils
                         'SAIAction'     => SMART_ACTION_SUMMON_CREATURE,
                         'params'        => array($param1, 1, $param3, 0, 0, 0),
                         'target'        => $param2 + 1,
-                        'commentType' => "_npcName_ - On _eventName_ - Summon NPC " . $param1
+                        'commentType'   => "_npcName_ - On _eventName_ - Summon NPC " . $param1
+                    );
+                    break;
+                case ACTION_T_SUMMON_ID:
+                    $result[$i] = array(
+                        'extraData'     => $pdo->query("SELECT * FROM creature_ai_summons WHERE id = " . $param3)->fetch(PDO::FETCH_OBJ),
+                        'SAIAction'     => SMART_ACTION_SUMMON_CREATURE,
+                        'params'        => array($param1, 0, 0, 0, 0, 0),
+                        'target'        => SMART_TARGET_NONE,
+                        'commentType'   => "_npcName_ - On _eventName_ - Summon NPC " . $param1,
                     );
                     break;
                 case ACTION_T_KILLED_MONSTER:

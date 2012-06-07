@@ -163,7 +163,7 @@ class SAI
                     continue;
 
                 if ($action['SAIAction'] == SMART_ACTION_TALK) {
-                    foreach ($action['dumpedTexts'] as $text)
+                    foreach ($action['extraData'] as $text)
                         $this->_parent->addText($text)->setGroupId($this->_parent->getGroupId())->setTextId($this->_parent->getTextId());
                     $this->_parent->increaseTextGroupId();
                     unset($text); // Save some memory
@@ -221,7 +221,21 @@ class SAI
 
             # Writing targets
                 $outputString .= $this->data['actions'][$i]['target'] . ',';
+                
+            if ($this->data['actions'][$i]['SAIAction'] == SMART_ACTION_SUMMON_CREATURE && $this->data['actions'][$i]['isSpecialHandler'])
+            {
+                $summonData = $this->data['actions'][$i]['extraData'];
+                $outputSring .= SMART_TARGET_POSITION . ',0,0,0,';
+                $outputString .= $summonData->position_x . ',';
+                $outputString .= $summonData->position_y . ',';
+                $outputString .= $summonData->position_z . ',';
+                $outputString .= $summonData->orientation . ',';
+            }
+            else
+                $outputString .= $this->data['actions'][$i]['target'] . '0,0,0,0,0,0,0,';
 
+            # Build the comment, and we're done.
+                
             $outputString .= '),' . PHP_EOL;
 
             $this->_parent->increaseSaiIndex();
