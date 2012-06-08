@@ -315,14 +315,24 @@ class SAI
                 $commentType = str_replace('_castSpellId_', $record['SpellNameLang0'], $commentType);
                 unset($record);
             }
+            
+            if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_REMOVEAURASFROMSPELL && $this->data['actions'][$actionIndex]['params'][0] != 0) {
+                $record = $this->_parent->dbcWorker->getRecordById($this->data['actions'][$actionIndex]['params'][0])->extract();
+                $commentType = str_replace('_removeAuraSpell_', $record['SpellNameLang0'], $commentType);
+                unset($record);
+            }
         }
         else
         {
             if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_CAST)
-                $commentType = str_replace('_castSpellId_', $this->data['actions'][$actionIndex]['params'][0], $commentType);
+                $commentType = str_replace('_castSpellId_', $this->data['actions'][$actionIndex]['params'][0] . " (Not found in DBCs!)", $commentType);
             
             if ($this->data['event_type'] == SMART_EVENT_SPELLHIT || $this->data['event_type'] == SMART_EVENT_SPELLHIT_TARGET)
-                $commentType = str_replace('_spellHitSpellId_', $this->data['event_params'][1], $commentType);
+                $commentType = str_replace('_spellHitSpellId_', $this->data['event_params'][1] . " (Not found in DBCs!)", $commentType);
+
+            if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_REMOVEAURASFROMSPELL && $this->data['actions'][$actionIndex]['params'][0] != 0) {
+                $commentType = str_replace('_removeAuraSpell_', $this->data['actions'][$actionIndex]['params'][0] . " (Not found in DBCs!)", $commentType);
+            }
         }
         // Some other parsing and fixing may be needed here
         return $commentType;

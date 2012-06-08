@@ -411,8 +411,10 @@ class Utils
                         'SAIAction'  => SMART_ACTION_REMOVEAURASFROMSPELL,
                         'params'     => array($param2, 0, 0, 0, 0, 0),
                         'target'     => $param1 + 1,
-                        'commentType' => "_npcName_ - _eventName_ - Remove Aura " . $param2
-                    );                    
+                        'commentType' => "_npcName_ - _eventName_ - Remove Aura _removeAuraSpell_" 
+                    );
+                    if ($param2 == 0)
+                        $result[$i]['commentType'] = "_npcName_ - _eventName_ - Remova all auras";
                     break;
                 case ACTION_T_RANGED_MOVEMENT:
                     $result[$i] = array(
