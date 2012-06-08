@@ -417,7 +417,7 @@ class Utils
                 case ACTION_T_RANGED_MOVEMENT:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_RANGED_MOVEMENT,
-                        'params'     => array($param1, $paramm2, 0, 0, 0, 0),
+                        'params'     => array($param1, $param2, 0, 0, 0, 0),
                         'target'     => SMART_TARGET_SELF,
                         'commentType' => "_npcName_ - _eventName_ - Set Ranged Movement"
                     );
