@@ -543,12 +543,11 @@ class Utils
                         'SAIAction'  => SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL,
                         'params'     => array($param1, $param2, 0, 0, 0, 0),
                         'target'     => SMART_TARGET_NONE,
-						# Will this work?
-						if ($param1 > 0 && $param2 > 0)
-						    'commentType' => "_npcName_ - _eventName_ - Dismount"
-					    else
-                            'commentType' => "_npcName_ - _eventName_ - Mount Up"
+                        'commentType' => "_npcName_ - _eventName_ - Mount Up"
                     );
+
+                    if ($param1 == 0 && $param2 == 0)
+                        $result[$i]['commentType'] = "_npcName_ - _eventName_ - Dismount";
                     break;
                 case ACTION_T_SET_PHASE_MASK:
                     $result[$i] = array(
