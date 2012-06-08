@@ -12,11 +12,13 @@ class NPC
     private $textId      = 0;
     private $saiItemId   = 0;
 
-    public function __construct($pdo, $npcId, $npcName) {
-        $this->pdo       = $pdo;
-        $this->npcId     = $npcId;
-        $this->npcName   = $npcName;
-        $this->saiItemId = 0;
+    public function __construct($pdo, $npcId, $npcName, $dbcWorker) {
+        $this->pdo        = $pdo;
+        $this->npcId      = $npcId;
+        $this->npcName    = $npcName;
+        $this->saiItemId  = 0;
+        $this->dumpSpells = ($dbcWorker !== false);
+        $this->dbcWorker  = $dbcWorker;
     }
     
     public function countSQLRows($isSAI = false) {
@@ -237,7 +239,7 @@ class SAI
 
             # Build the comment, and we're done.
             
-            $outputString .= '"' . $this->buildComment($action['commentType']) . '"';
+            $outputString .= '"' . $this->buildComment($action['commentType'], $i) . '"';
             //$outputString .= '"' . $this->data['actions'][$i]['commentType'] . '"';
                 
             $outputString .= '),' . PHP_EOL;
@@ -248,13 +250,42 @@ class SAI
         return $outputString;
     }
     
-    private function buildComment($commentType)
+    private function buildComment($commentType, $actionIndex)
     {
         $match = array(
             '_npcName_' => $this->_parent->npcName,
             '_eventName_' => Utils::GetEventString($this->data['event_type'], $this->data['event_params'])
         );
+        
         $commentType = str_replace(array_keys($match), array_values($match), $commentType);
+        
+        if ($this->_parent->dumpSpells) {
+            // Prevent unnecessary processing
+            if ($this->data['event_type'] == SMART_EVENT_SPELLHIT || $this->data['event_type'] == SMART_EVENT_SPELLHIT_TARGET) {
+                // For some bitch reason, some spellhit events have 0 as the spell hitter
+                if ($this->data['event_params'][1] != 0) {
+                    $record = $this->_parent->dbcWorker->getRecordById($this->data['event_params'][1])->extract();
+                    $commentType = str_replace('_spellHitSpellId_', $record['SpellNameLang2'], $commentType); # Use your own locale here. I do not have english DBCs.
+                    unset($record); // Save memory
+                }
+                else
+                    $commentType = str_replace('_spellHitSpellId_', 'NOT FOUND', $commentType);
+            }
+            
+            if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_CAST) {
+                $record = $this->_parent->dbcWorker->getRecordById($this->data['actions'][$actionIndex]['params'][0])->extract();
+                $commentType = str_replace('_castSpellId_', $record['SpellNameLang2'], $commentType);
+                unset($record);
+            }
+        }
+        else
+        {
+            if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_CAST)
+                $commentType = str_replace('_castSpellId_', $this->data['actions'][$actionIndex]['params'][0], $commentType);
+            
+            if ($this->data['event_type'] == SMART_EVENT_SPELLHIT || $this->data['event_type'] == SMART_EVENT_SPELLHIT_TARGET)
+                $commentType = str_replace('_spellHitSpellId_', $this->data['event_params'][1], $commentType);
+        }
         // Some other parsing and fixing may be needed here
         return $commentType;
     }

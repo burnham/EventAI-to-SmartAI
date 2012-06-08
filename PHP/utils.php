@@ -15,34 +15,6 @@ set_error_handler("errorHandler");
 
 class Utils
 {
-    static function hasParameters($eventId) {
-        switch ($eventId)
-        {
-            case SMART_EVENT_AGGRO:
-            case SMART_EVENT_DEATH:
-            case SMART_EVENT_EVADE:
-            case SMART_EVENT_REACHED_HOME:
-            case SMART_EVENT_CHARMED:
-            case SMART_EVENT_CHARMED_TARGET:
-            case SMART_EVENT_CORPSE_REMOVED:
-            case SMART_EVENT_AI_INIT:
-            case SMART_EVENT_TRANSPORT_ADDPLAYER:
-            case SMART_EVENT_TRANSPORT_REMOVE_PLAYER:
-            case SMART_EVENT_QUEST_ACCEPTED:
-            case SMART_EVENT_QUEST_OBJ_COPLETETION:
-            case SMART_EVENT_QUEST_COMPLETION:
-            case SMART_EVENT_QUEST_REWARDED:
-            case SMART_EVENT_QUEST_FAIL:
-            case SMART_EVENT_JUST_SUMMONED:
-            case SMART_EVENT_JUST_CREATED:
-            case SMART_EVENT_GOSSIP_HELLO:
-            case SMART_EVENT_FOLLOW_COMPLETED:
-                return false;
-            default:
-                return true;
-        }
-    }
-
     static function SAI2EAIFlag($flag)
     {
         // Rather than making shitty stuff, lets do it plain.
@@ -153,7 +125,7 @@ class Utils
             case SMART_EVENT_EVADE:
                 return "On evade";
             case SMART_EVENT_SPELLHIT:
-                return "On spell ${param1} hit";
+                return "On spell _spellHitSpellId_ hit";
             case SMART_EVENT_RANGE:
                 return "From ${param1} to ${param2} yards range";
             case SMART_EVENT_OOC_LOS:
@@ -183,7 +155,9 @@ class Utils
             case SMART_EVENT_RECEIVE_EMOTE:
                 return "On emote received";
             case SMART_EVENT_HAS_AURA:
-                return "On (No)Aura"; // FIXME!
+                if ($param1 < 0)
+                    return "On aura _hasAuraSpellId_ not present";
+                return "On aura _hasAuraSpellId_ present";
             case SMART_EVENT_TARGET_BUFFED:
                 return "Fixme -- SMART_EVENT_TARGET_BUFFED";
             case SMART_EVENT_RESET:
@@ -316,7 +290,7 @@ class Utils
                         'SAIAction'  => SMART_ACTION_CAST,
                         'params'     => array($param1, $param3, 0, 0, 0, 0),
                         'target'     => $param2 + 1,
-                        'commentType' => "_npcName_ - _eventName_ - Cast spell #" . $param1
+                        'commentType' => "_npcName_ - _eventName_ - Cast spell _castSpellId_"
                     );
                     break;
                 case ACTION_T_THREAT_SINGLE_PCT:

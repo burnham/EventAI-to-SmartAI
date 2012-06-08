@@ -21,12 +21,23 @@ $host = 'localhost';
 $dbName = 'world';
 $username = 'root';
 $password = '';
+$dumpSpellNames = false;
+$dbcWorker = false;
 if ($iniFile = parse_ini_file('config.ini')) {
     $host = $iniFile['hostname'];
     $dbName = $iniFile['worldDatabase'];
     $username = $iniFile['userName'];
     $password = $iniFile['password'];
+    
     echo '>> Config file found and parsed sucessfully.' . PHP_EOL;
+    
+    $dumpSpellNames = (isset($iniFile['dumpSpellNames']) && $iniFile['dumpSpellNames'] == 1);
+    if ($dumpSpellNames)
+    {
+        require_once('./dep/lib/bootstrap.php');
+        $dbcWorker = new DBC('./dep/dbcs/Spell.dbc', DBCMap::fromINI('./dep/maps/Spell.ini'));
+        echo PHP_EOL . '>> Spell.dbc opened.' . PHP_EOL;
+    }
 }
 
 
@@ -61,7 +72,7 @@ foreach ($EAIDataSet as $eaiItem) {
         # New NPC. Create a corresponding NPC class instance.
         $npcName   = $pdo->query('SELECT name FROM creature_template WHERE entry = ' . $eaiItem->creature_id)->fetch(PDO::FETCH_OBJ)->name;
         $npcId     = $eaiItem->creature_id;
-        $npcStore[$npcId] = new NPC($pdo, $npcId, $npcName);
+        $npcStore[$npcId] = new NPC($pdo, $npcId, $npcName, $dbcWorker);
     }
     
     $eaiItem->npcName = $npcName;
