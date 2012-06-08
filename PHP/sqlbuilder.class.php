@@ -30,7 +30,6 @@ class NPC
     public function setEmoteWhenFleeing($apply) {
         foreach ($this->sai as $saiItem)
             $saiItem->setFleeingEmoteState($apply);
-        return ''; // To avoid a line in SAI::toSQL
     }
 
     public function addSAI($sai) {
@@ -86,6 +85,7 @@ class NPC
 
         foreach ($this->sai as $item)
             $output .= $item->toSQL();
+
         unset($item, $this->dbcWorker);
 
         return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
@@ -179,6 +179,10 @@ class SAI
                 break;
 
             $action = $this->data['actions'][$i];
+            
+            // Ignore talk flee emotes
+            if ($action['SAIAction'] == SMART_ACTION_TALK && $action['params'][0] == -47)
+                continue;
 
             // Found an empty action. Means no action's following.
             //! Note: Invalid for TWO EAIs. Fix them by hand before running this script.
@@ -357,8 +361,10 @@ class CreatureAiText
 
     public function toCreatureText() {
         // Ignore flee emotes.
-        if ($this->isFleeEmote())
-            return $this->_parent->setEmoteWhenFleeing(true);
+        if ($this->isFleeEmote()) {
+            $this->_parent->setEmoteWhenFleeing(true);
+            return '';
+        }
 
         $output  = '(' . $this->_parent->npcId . ',';
         $output .= $this->groupId . ',';
