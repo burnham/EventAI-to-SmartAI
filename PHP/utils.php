@@ -119,7 +119,7 @@ class Utils
             case SMART_EVENT_AGGRO:
                 return "On aggro";
             case SMART_EVENT_KILL:
-                return "Fixme -- SMART_EVENT_KILL";
+                return "On kill";
             case SMART_EVENT_DEATH:
                 return "On death";
             case SMART_EVENT_EVADE:
@@ -129,17 +129,17 @@ class Utils
             case SMART_EVENT_RANGE:
                 return "From ${param1} to ${param2} yards range";
             case SMART_EVENT_OOC_LOS:
-                return "Fixme -- SMART_EVENT_OOC_LOS";
+                return "On LoS OOC";
             case SMART_EVENT_RESPAWN:
                 return "On spawn"; // Or "On reset" ?
             case SMART_EVENT_TARGET_HEALTH_PCT:
-                return "Fixme -- SMART_EVENT_TARGET_HEALTH_PCT";
+                return "On target health below ${param2}";
             case SMART_EVENT_TARGET_CASTING:
                 return "On enemy casting";
             case SMART_EVENT_FRIENDLY_HEALTH:
                 return "On friendly unit at ${param1}% health";
             case SMART_EVENT_FRIENDLY_IS_CC:
-                return "Fixme -- SMART_EVENT_FRIENDLY_IS_CC";
+                return "On friendly unit crowd-controlled";
             case SMART_EVENT_FRIENDLY_MISSING_BUFF:
                 return "Buff non present"; // Fixme ?
             case SMART_EVENT_SUMMONED_UNIT:
@@ -159,19 +159,19 @@ class Utils
                     return "On aura _hasAuraSpellId_ not present";
                 return "On aura _hasAuraSpellId_ present";
             case SMART_EVENT_TARGET_BUFFED:
-                return "Fixme -- SMART_EVENT_TARGET_BUFFED";
+                return "On target buffed";
             case SMART_EVENT_RESET:
                 return "On reset";
             case SMART_EVENT_IC_LOS:
-                return "Fixme -- SMART_EVENT_IC_LOS";
+                return "On Los in combat";
             case SMART_EVENT_PASSENGER_BOARDED:
                 return "On passenger";
             case SMART_EVENT_PASSENGER_REMOVED:
-                return "Fixme -- SMART_EVENT_PASSENGER_REMOVED";
+                return "On passenger removed";
             case SMART_EVENT_CHARMED:
-                return "Fixme -- SMART_EVENT_CHARMED";
+                return "On charm";
             case SMART_EVENT_CHARMED_TARGET:
-                return "Fixme -- SMART_EVENT_CHARMED_TARGET";
+                return "On charming target";
             case SMART_EVENT_SPELLHIT_TARGET:
                 return "On spell hit target";
             case SMART_EVENT_DAMAGED:
@@ -180,9 +180,9 @@ class Utils
             case SMART_EVENT_MOVEMENTINFORM:
                 return "On movement inform";
             case SMART_EVENT_SUMMON_DESPAWNED:
-                return "Fixme -- SMART_EVENT_SUMMON_DESPAWNED";
+                return "On summon despawn";
             case SMART_EVENT_CORPSE_REMOVED:
-                return "Fixme -- SMART_EVENT_CORPSE_REMOVED";
+                return "On corpse removal";
             default:
                 return "Fixme -- Add case";
         }

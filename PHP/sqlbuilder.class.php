@@ -228,7 +228,14 @@ class SAI
             else
             {
                 $this->_parent->setLinkIndex($this->_parent->getSaiIndex() + 1); // +1 because index is not yet updated
-                $outputString .= '0,' . SMART_EVENT_LINK . ',';
+                if (count($this->data['actions']) == 1)
+                    $outputString .= '0,' . $this->data['event_type'] . ',';
+                else {
+                    if ($i == 1)
+                        $outputString .= '0,' . $this->data['event_type'] . ',';
+                    else
+                        $outputString .= '0,' . SMART_EVENT_LINK . ',';
+                }
             }
 
             # Writing event type, phase, chance, flags and parameters
@@ -268,8 +275,7 @@ class SAI
 
             # Build the comment, and we're done.
             
-            $outputString .= '"' . $this->buildComment($action['commentType'], $i) . '"';
-            //$outputString .= '"' . $this->data['actions'][$i]['commentType'] . '"';
+            $outputString .= ' "' . $this->buildComment($action['commentType'], $i) . '"';
                 
             $outputString .= '),' . PHP_EOL;
 
