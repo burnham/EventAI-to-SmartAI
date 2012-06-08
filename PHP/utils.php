@@ -401,7 +401,7 @@ class Utils
                     //! on fleeing.
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_FLEE_FOR_ASSIST,
-                        'params'     => array(1, 0, 0, 0, 0, 0), # The 1 means we will also say "%s flees blabla".
+                        'params'     => array(0, 0, 0, 0, 0, 0), # The 1 means we will also say "%s flees blabla".
                         'target'     => SMART_TARGET_NONE,
                         'commentType' => "_npcName_ - _eventName_ - Flee For Assist"
                     );
