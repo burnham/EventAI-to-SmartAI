@@ -611,7 +611,7 @@ class Utils
                         'SAIAction'  => SMART_ACTION_SUMMON_GO,
                         'params'     => array($param1, $param2, 0, 0, 0, 0),
                         'target'     => SMART_TARGET_NONE,
-                        'commentType' => "_npcName_ - _eventName_ - Summon Gameobject " . $pdo->query('SELECT name FROM gameobject_template WHERE entry = ${param1};')->fetch(PDO::FETCH_OBJ)->name
+                        'commentType' => "_npcName_ - _eventName_ - Summon Gameobject " . $pdo->query("SELECT name FROM gameobject_template WHERE entry = ${param1}")->fetch(PDO::FETCH_OBJ)->name
                     );
                     break;
                 case ACTION_T_NONE:
