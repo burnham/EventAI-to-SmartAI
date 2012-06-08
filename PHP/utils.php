@@ -471,7 +471,7 @@ class Utils
                         'SAIAction'  => SMART_ACTION_SET_INST_DATA,
                         'params'     => array($param1, $param2),
                         'target'     => SMART_TARGET_NONE,
-                        'commentType' => "_npcName_ - _eventName_ - Set Instance Data"
+                        'commentType' => "_npcName_ - _eventName_ - Set Instance Data ${param1} to ${param2}"
                     );
                     break;
                 case ACTION_T_SET_INST_DATA64:
