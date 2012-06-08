@@ -558,8 +558,6 @@ class Utils
                     );
                     break;
                 case ACTION_T_SET_STAND_STATE:
-                    //! Not found in SAI
-                    return sLog::outString('Tried to cast ACTION_T_SET_STAND_STATE to SAI, but this event does not seem to exist in SAI! Aborting.');
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_UNIT_FIELD_BYTES_1,
                         'params'     => array(0, 0, 0, 0, 0, 0),
