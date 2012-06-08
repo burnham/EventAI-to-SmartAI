@@ -11,6 +11,8 @@ class NPC
     private $textGroupId = 0;
     private $textId      = 0;
     private $saiItemId   = 0;
+    private $linkItr     = 0;
+    private $eventCache  = array();
 
     public function __construct($pdo, $npcId, $npcName, $dbcWorker) {
         $this->pdo        = $pdo;
@@ -20,7 +22,7 @@ class NPC
         $this->dumpSpells = ($dbcWorker !== false);
         $this->dbcWorker  = $dbcWorker;
     }
-    
+
     public function countSQLRows($isSAI = false) {
         if ($isSAI)
             return count($this->sai);
@@ -48,12 +50,37 @@ class NPC
 
     public function increaseTextGroupId() { $this->resetTextId(); $this->textGroupId++; return $this; }
     public function getGroupId()   { return $this->textGroupId; }
+
     public function resetTextId()         { $this->textId = 0; }
     public function getTextId()    { $this->textId++; return $this->textId - 1; }
+
     public function getSaiIndex()  { return $this->saiItemId; }
     public function increaseSaiIndex()    { $this->saiItemId++; return $this; }
     public function resetSaiIndex()       { $this->saiItemId = 0; }
+    
+    public function getLinkIndex()        { return $this->linkItr; }
+    public function increaseLinkIndex()   { $this->linkItr += 1; }
+    public function setLinkIndex($val)    { $this->linkItr = $val; }
 
+    public function addEventToCache($event) {
+        $item = array(
+            'type'    => $event['event_type'],
+            'phase'   => $event['event_phase'],
+            'flags'   => $event['event_flags'],
+            'chance'  => $event['event_chance'],
+            'params'  => $event['event_params']
+        );
+    }
+    public function hasEventInCache($event) {
+        foreach ($this->eventCache as $item)
+            if ($item['type']         == $event['event_type']      && $item['phase']     == $event['event_phase']
+                && $item['flags']     == $event['event_flags']     && $item['chance']    == $event['event_chance']
+                && $item['params'][1] == $event['event_params'][1] && $item['params'][2] == $event['event_params'][2]
+                && $item['params'][3] == $event['event_params'][3] && $item['params'][4] == $event['event_params'][4])
+                return true;
+            return false;
+    }
+    
     public function convertAllToSAI() {
         foreach ($this->eai as $eaiItem)
             $this->addSAI($eaiItem->toSAI($this->pdo));
@@ -145,7 +172,7 @@ class SAI
                 break;
 
             if ($action['SAIAction'] == SMART_ACTION_FLEE_FOR_ASSIST)
-                $action['params'][0] = $apply ? 1 : 0;
+                $action['params'][0] = ($apply ? 1 : 0);
         }
         unset($i, $size); // Save some memory
     }
@@ -179,8 +206,8 @@ class SAI
                 break;
 
             $action = $this->data['actions'][$i];
-            
-            // Ignore talk flee emotes
+
+            // Ignore flee emote actions
             if ($action['SAIAction'] == SMART_ACTION_TALK && $action['params'][0] == -47)
                 continue;
 
@@ -194,10 +221,15 @@ class SAI
             $outputString .= $this->data['source_type'] . ',';
             $outputString .= $this->_parent->getSaiIndex() . ',';
 
-            if (isset($this->data['actions'][$i + 1]) && count($this->data['actions'][$i + 1]) != 0)
-                $outputString .= ($this->_parent->getSaiIndex() + 1) . ',' . $this->data['event_type'] . ',';
+            if ($this->_parent->hasEventInCache($this->data) || (isset($this->data['actions'][$i + 1]) && count($this->data['actions'][$i + 1]) != 0)) {
+                $this->_parent->increaseLinkIndex();
+                $outputString .= $this->_parent->getLinkIndex() . ',' . $this->data['event_type'] . ',';
+            }
             else
+            {
+                $this->_parent->setLinkIndex($this->_parent->getSaiIndex() + 1); // +1 because index is not yet updated
                 $outputString .= '0,' . SMART_EVENT_LINK . ',';
+            }
 
             # Writing event type, phase, chance, flags and parameters
 
@@ -243,6 +275,9 @@ class SAI
 
             $this->_parent->increaseSaiIndex();
         }
+        
+        $this->_parent->addEventToCache($this->data);
+        
 
         return $outputString;
     }
