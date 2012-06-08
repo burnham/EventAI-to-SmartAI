@@ -302,7 +302,7 @@ class Utils
                         'SAIAction'  => ($eaiAction == ACTION_T_THREAT_SINGLE_PCT ? SMART_ACTION_THREAT_SINGLE_PCT : SMART_ACTION_THREAT_ALL_PCT),
                         'params'     => array(max(0, $param1), min(0, $param1), 0, 0, 0, 0),
                         'target'     => (isset($target) ? $target : SMART_TARGET_NONE),
-                        'commentType' => "_npcName_ - _eventName_ - Add "  . $param1 "Threat"
+                        'commentType' => "_npcName_ - _eventName_ - Add "  . $param1 . " Threat"
                     );
                     break;
                 case ACTION_T_QUEST_EVENT_ALL:
