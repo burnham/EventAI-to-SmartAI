@@ -1,4 +1,6 @@
 <?php
+ini_set('memory_limit', "148M"); // That shouldnt be a problem, default is 128MB and the script peakes at around 140Mb.
+
 require_once('./utils.php');
 
 # ############# DO NOT EDIT PAST THIS LINE, UNLESS YOU KNOW WHAT YOU ARE DOING ############# #
@@ -105,6 +107,8 @@ foreach ($npcStore as $npcId => $npcObj) {
     // The order is important here, CreatureText changes data on the parent, thus on all the current NPC's SAI.
     sLog::outSpecificFile('creature_texts_v2.sql', $npcObj->getCreatureText());
     sLog::outSpecificFile('smart_scripts_v2.sql', $npcObj->getSmartScripts());
+    
+    unset($npcObj);
 
     ob_start();
     $pct = (++$itr) * 100 / $storeSize;

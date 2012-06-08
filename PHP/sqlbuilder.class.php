@@ -72,7 +72,6 @@ class NPC
                 $item->toSQL(false);
 
             unset($item); // Save some memory
-
             return;
         }
 
@@ -87,8 +86,7 @@ class NPC
 
         foreach ($this->sai as $item)
             $output .= $item->toSQL();
-
-        unset($item); // Save some memory
+        unset($item, $this->dbcWorker);
 
         return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
     }
