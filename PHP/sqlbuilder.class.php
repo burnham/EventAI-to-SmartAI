@@ -194,17 +194,12 @@ class SAI
             $outputString .= $this->data['source_type'] . ',';
             $outputString .= $this->_parent->getSaiIndex() . ',';
 
-            $link = 0;
             if (isset($this->data['actions'][$i + 1]) && count($this->data['actions'][$i + 1]) != 0)
-                $link = ($this->_parent->getSaiIndex() + 1);
-
-            $outputString .= $link . ',';
+                $outputString .= ($this->_parent->getSaiIndex() + 1) . ',' . $this->data['event_type'] . ',';
+            else
+                $outputString .= '0,' . SMART_EVENT_LINK . ',';
 
             # Writing event type, phase, chance, flags and parameters
-            if ($link == 0)
-                $outputString .= $this->data['event_type'] . ',';
-            else
-                $outputString .= SMART_EVENT_LINK . ',';
 
             $outputString .= $this->data['event_phase'] . ',';
             $outputString .= $this->data['event_chance'] . ',';
@@ -267,7 +262,7 @@ class SAI
                 // For some bitch reason, some spellhit events have 0 as the spell hitter
                 if ($this->data['event_params'][1] != 0) {
                     $record = $this->_parent->dbcWorker->getRecordById($this->data['event_params'][1])->extract();
-                    $commentType = str_replace('_spellHitSpellId_', $record['SpellNameLang2'], $commentType); # Use your own locale here. I do not have english DBCs.
+                    $commentType = str_replace('_spellHitSpellId_', $record['SpellNameLang0'], $commentType); # Use your own locale here. I do not have english DBCs.
                     unset($record); // Save memory
                 }
                 else
@@ -276,7 +271,7 @@ class SAI
             
             if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_CAST) {
                 $record = $this->_parent->dbcWorker->getRecordById($this->data['actions'][$actionIndex]['params'][0])->extract();
-                $commentType = str_replace('_castSpellId_', $record['SpellNameLang2'], $commentType);
+                $commentType = str_replace('_castSpellId_', $record['SpellNameLang0'], $commentType);
                 unset($record);
             }
         }
