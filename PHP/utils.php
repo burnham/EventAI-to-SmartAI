@@ -447,7 +447,7 @@ class Utils
                         'SAIAction'     => SMART_ACTION_SUMMON_CREATURE,
                         'params'        => array($param1, 1, $param3, 0, 0, 0),
                         'target'        => $param2 + 1,
-                        'commentType'   => "_npcName_ - _eventName_ - Summon Creature " . $param1
+                        'commentType'   => "_npcName_ - _eventName_ - Summon Creature " . $pdo->query("SELECT `name` FROM `creature_template` WHERE `entry`=${param1}")->fetch(PDO::FETCH_OBJ)->name
                     );
                     break;
                 case ACTION_T_SUMMON_ID:
@@ -456,7 +456,7 @@ class Utils
                         'SAIAction'     => SMART_ACTION_SUMMON_CREATURE,
                         'params'        => array($param1, 0, 0, 0, 0, 0),
                         'target'        => SMART_TARGET_NONE,
-                        'commentType'   => "_npcName_ - _eventName_ - Summon NPC " . $param1,
+                        'commentType'   => "_npcName_ - _eventName_ - Summon Creature " . $pdo->query("SELECT `name` FROM `creature_template` WHERE `entry`=${param1}")->fetch(PDO::FETCH_OBJ)->name,
                         'isSpecialHandler' => true,
                     );
                     break;
@@ -521,8 +521,20 @@ class Utils
                         'SAIAction'  => SMART_ACTION_SET_SHEATH,
                         'params'     => array($param1, 0, 0, 0, 0, 0),
                         'target'     => SMART_TARGET_NONE,
-                        'commentType' => "_npcName_ - _eventName_ - Set Sheath" # We'll have to find a way here to make the code know 0 = unarmed, 1 = melee, 2 = ranged and add this to comments
+                        'commentType' => "_npcName_ - _eventName_ - "
                     );
+                    switch ($param1) 
+                    {
+                        case 0: // No melee weapon
+                            $result[$i]['commentType'] .= 'Set unarmed';
+                            break;
+                        case 1: // Melee weapon
+                            $result[$i]['commentType'] .= 'Display melee weapon';
+                            break;
+                        case 2: // Ranged
+                            $result[$i]['commentType'] .= 'Display ranged weapon';
+                            break;
+                    }
                     break;
                 case ACTION_T_FORCE_DESPAWN:
                     $result[$i] = array(
