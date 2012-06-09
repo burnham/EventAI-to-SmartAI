@@ -5,14 +5,6 @@ require_once('./sai.def.php');
 
 define('__FIXME__',  -1);
 
-function errorHandler($errno, $errstr, $errfile, $errline)
-{
-    return false;
-    exit(5);
-}
-
-set_error_handler("errorHandler");
-
 class Utils
 {
     static function SAI2EAIFlag($flag)
@@ -21,10 +13,10 @@ class Utils
         $output = 0;
         if (!($flag & EFLAG_REPEATABLE))
             $output |= SMART_EVENT_FLAG_NOT_REPEATABLE;
-            
+
         if ($flag & EFLAG_DIFFICULTY_0)
             $output |= SMART_EVENT_FLAG_DIFFICULTY_0;
-        
+
         if ($flag & EFLAG_DIFFICULTY_1)
             $output |= SMART_EVENT_FLAG_DIFFICULTY_1;
 
@@ -99,7 +91,7 @@ class Utils
                 return SMART_EVENT_END;
         }
     }
-    
+
     static function GetEventString($eventType, $params)
     {
         $param1 = $params[1];
@@ -187,7 +179,7 @@ class Utils
                 return "Fixme -- Add case";
         }
     }
-    
+
     static function convertParamsToSAI($eaiItem) {
         $data = array();
         switch ($eaiItem->event_type)
@@ -216,7 +208,7 @@ class Utils
                 $data[2] = $eaiItem->event_param2;
                 $data[3] = $eaiItem->event_param3;
                 $data[4] = $eaiItem->event_param4;
-                break;            
+                break;
         }
         return array_map('intval', $data);
     }
@@ -523,6 +515,7 @@ class Utils
                         'target'     => SMART_TARGET_NONE,
                         'commentType' => "_npcName_ - _eventName_ - "
                     );
+
                     switch ($param1) 
                     {
                         case 0: // No melee weapon
@@ -650,14 +643,14 @@ class Utils
                     );
                     break;
             }
-            
+
             if (!isset($result[$i]['isSpecialHandler']))
                 $result[$i]['isSpecialHandler'] = false;
         }
-        
+
         return $result;
     }
-    
+
     static function generateSAIPhase($eaiPhase) {
         //! Not sure if this how it should behave. EAI uses phases to force events NOT TO happen in phases. It means they happen in ~$phase to me.
         //! Except for 0. (Seems kind of idiot for an event to never happen.)

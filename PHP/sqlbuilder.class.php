@@ -57,7 +57,7 @@ class NPC
     public function getSaiIndex()  { return $this->saiItemId; }
     public function increaseSaiIndex()    { $this->saiItemId++; return $this; }
     public function resetSaiIndex()       { $this->saiItemId = 0; }
-    
+
     public function getLinkIndex()        { return $this->linkItr; }
     public function increaseLinkIndex()   { $this->linkItr += 1; }
     public function setLinkIndex($val)    { $this->linkItr = $val; }
@@ -71,6 +71,7 @@ class NPC
             'params'  => $event['event_params']
         );
     }
+
     public function hasEventInCache($event) {
         foreach ($this->eventCache as $item)
             if ($item['type']         == $event['event_type']      && $item['phase']     == $event['event_phase']
@@ -80,7 +81,7 @@ class NPC
                 return true;
             return false;
     }
-    
+
     public function convertAllToSAI() {
         foreach ($this->eai as $eaiItem)
             $this->addSAI($eaiItem->toSAI($this->pdo));
@@ -260,7 +261,7 @@ class SAI
 
             # Writing targets
                 $outputString .= $this->data['actions'][$i]['target'] . ',';
-                
+
             if ($this->data['actions'][$i]['SAIAction'] == SMART_ACTION_SUMMON_CREATURE && $this->data['actions'][$i]['isSpecialHandler'])
             {
                 $summonData = $this->data['actions'][$i]['extraData'];
@@ -276,26 +277,26 @@ class SAI
             # Build the comment, and we're done.
             
             $outputString .= ' "' . $this->buildComment($action['commentType'], $i) . '"';
-                
+
             $outputString .= '),' . PHP_EOL;
 
             $this->_parent->increaseSaiIndex();
         }
         
         $this->_parent->addEventToCache($this->data);
-        
 
         return $outputString;
     }
-    
+
     private function buildComment($commentType, $actionIndex)
     {
         $match = array(
             '_npcName_' => $this->_parent->npcName,
             '_eventName_' => Utils::GetEventString($this->data['event_type'], $this->data['event_params'])
         );
-        
+
         $commentType = str_replace(array_keys($match), array_values($match), $commentType);
+
         
         if ($this->_parent->dumpSpells) {
             // Prevent unnecessary processing
@@ -309,13 +310,13 @@ class SAI
                 else
                     $commentType = str_replace('_spellHitSpellId_', 'NOT FOUND', $commentType);
             }
-            
+
             if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_CAST) {
                 $record = $this->_parent->dbcWorker->getRecordById($this->data['actions'][$actionIndex]['params'][0])->extract();
                 $commentType = str_replace('_castSpellId_', $record['SpellNameLang0'], $commentType);
                 unset($record);
             }
-            
+
             if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_REMOVEAURASFROMSPELL && $this->data['actions'][$actionIndex]['params'][0] != 0) {
                 $record = $this->_parent->dbcWorker->getRecordById($this->data['actions'][$actionIndex]['params'][0])->extract();
                 $commentType = str_replace('_removeAuraSpell_', $record['SpellNameLang0'], $commentType);
@@ -326,13 +327,12 @@ class SAI
         {
             if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_CAST)
                 $commentType = str_replace('_castSpellId_', $this->data['actions'][$actionIndex]['params'][0] . " (Not found in DBCs!)", $commentType);
-            
+
             if ($this->data['event_type'] == SMART_EVENT_SPELLHIT || $this->data['event_type'] == SMART_EVENT_SPELLHIT_TARGET)
                 $commentType = str_replace('_spellHitSpellId_', $this->data['event_params'][1] . " (Not found in DBCs!)", $commentType);
 
-            if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_REMOVEAURASFROMSPELL && $this->data['actions'][$actionIndex]['params'][0] != 0) {
+            if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_REMOVEAURASFROMSPELL && $this->data['actions'][$actionIndex]['params'][0] != 0)
                 $commentType = str_replace('_removeAuraSpell_', $this->data['actions'][$actionIndex]['params'][0] . " (Not found in DBCs!)", $commentType);
-            }
         }
         // Some other parsing and fixing may be needed here
         return $commentType;
@@ -366,7 +366,7 @@ class EAI
             'position'    => array(),
             'spawnTimeSecs' => 0
         );
-        
+
         // For some awkward reason, $saiData['actions'] can become NULL.
         // foreach ($saiData['actions'] as $i => &$actionArray) {
         // for ($i = 1; $i <= 3; $i++) {

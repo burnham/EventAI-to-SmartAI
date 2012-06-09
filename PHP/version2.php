@@ -30,9 +30,9 @@ if ($iniFile = parse_ini_file('config.ini')) {
     $dbName = $iniFile['worldDatabase'];
     $username = $iniFile['userName'];
     $password = $iniFile['password'];
-    
+
     echo '>> Config file found and parsed sucessfully.' . PHP_EOL;
-    
+
     $dumpSpellNames = (isset($iniFile['dumpSpellNames']) && $iniFile['dumpSpellNames'] == 1);
     if ($dumpSpellNames)
     {
@@ -76,7 +76,7 @@ foreach ($EAIDataSet as $eaiItem) {
         $npcId     = $eaiItem->creature_id;
         $npcStore[$npcId] = new NPC($pdo, $npcId, $npcName, $dbcWorker);
     }
-    
+
     $eaiItem->npcName = $npcName;
     $eaiItem->npcId   = $npcId;
     $npcStore[$npcId]->addEAI($eaiItem);
