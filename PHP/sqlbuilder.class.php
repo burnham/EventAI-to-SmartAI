@@ -14,13 +14,12 @@ class NPC
     private $linkItr     = 0;
     private $eventCache  = array();
 
-    public function __construct($pdo, $npcId, $npcName, $dbcWorker) {
+    public function __construct($pdo, $npcId, $npcName) {
         $this->pdo        = $pdo;
         $this->npcId      = $npcId;
         $this->npcName    = $npcName;
         $this->saiItemId  = 0;
-        $this->dumpSpells = ($dbcWorker !== false);
-        $this->dbcWorker  = $dbcWorker;
+        $this->dumpSpells = (Factory::createOrGetDBCWorker() !== false);
     }
 
     public function countSQLRows($isSAI = false) {
@@ -303,7 +302,7 @@ class SAI
             if ($this->data['event_type'] == SMART_EVENT_SPELLHIT || $this->data['event_type'] == SMART_EVENT_SPELLHIT_TARGET) {
                 // For some bitch reason, some spellhit events have 0 as the spell hitter
                 if ($this->data['event_params'][1] != 0) {
-                    $record = $this->_parent->dbcWorker->getRecordById($this->data['event_params'][1])->extract();
+                    $record = Factory::createOrGetDBCWorker()->getRecordById($this->data['event_params'][1])->extract();
                     $commentType = str_replace('_spellHitSpellId_', $record['SpellNameLang0'], $commentType); # Use your own locale here. I do not have english DBCs.
                     unset($record); // Save memory
                 }
@@ -312,13 +311,13 @@ class SAI
             }
 
             if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_CAST) {
-                $record = $this->_parent->dbcWorker->getRecordById($this->data['actions'][$actionIndex]['params'][0])->extract();
+                $record = Factory::createOrGetDBCWorker()->getRecordById($this->data['actions'][$actionIndex]['params'][0])->extract();
                 $commentType = str_replace('_castSpellId_', $record['SpellNameLang0'], $commentType);
                 unset($record);
             }
 
             if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_REMOVEAURASFROMSPELL && $this->data['actions'][$actionIndex]['params'][0] != 0) {
-                $record = $this->_parent->dbcWorker->getRecordById($this->data['actions'][$actionIndex]['params'][0])->extract();
+                $record = Factory::createOrGetDBCWorker()->getRecordById($this->data['actions'][$actionIndex]['params'][0])->extract();
                 $commentType = str_replace('_removeAuraSpell_', $record['SpellNameLang0'], $commentType);
                 unset($record);
             }
