@@ -2,7 +2,6 @@
 require_once('./sqlbuilder.class.php');
 require_once('./eai.def.php');
 require_once('./sai.def.php');
-require_once('./factory.php');
 
 define('__FIXME__',  -1);
 

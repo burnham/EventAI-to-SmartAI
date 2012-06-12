@@ -1,5 +1,5 @@
 <?php
-
+require_once('./dep/lib/bootstrap.php');
 class Factory
 {
     private static $dbcWorker;

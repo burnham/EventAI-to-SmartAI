@@ -24,7 +24,6 @@ $dbName = 'world';
 $username = 'root';
 $password = '';
 $dumpSpellNames = false;
-$dbcWorker = false;
 if ($iniFile = parse_ini_file('config.ini')) {
     $host = $iniFile['hostname'];
     $dbName = $iniFile['worldDatabase'];
@@ -36,7 +35,7 @@ if ($iniFile = parse_ini_file('config.ini')) {
     $dumpSpellNames = (isset($iniFile['dumpSpellNames']) && $iniFile['dumpSpellNames'] == 1);
     if ($dumpSpellNames)
     {
-        require_once('./dep/lib/bootstrap.php');
+        require_once('./factory.php');
         echo PHP_EOL . '>> Spell.dbc parser loaded.' . PHP_EOL;
     }
 }
