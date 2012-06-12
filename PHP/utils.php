@@ -235,7 +235,7 @@ class Utils
                         'SAIAction'   => SMART_ACTION_TALK,
                         'params'      => array($param1, $param2, $param3, 0, 0, 0),
                         'target'      => SMART_TARGET_NONE,
-                        'commentType' => "_npcName_ - _eventName_ - Say Line " . $param1
+                        'commentType' => "_npcName_ - _eventName_ - Say Line _lineEntry_"
                     );
                     break;
                 case ACTION_T_SET_FACTION:
