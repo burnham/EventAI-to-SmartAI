@@ -113,7 +113,7 @@ class NPC
         foreach ($this->sai as $item)
             $output .= $item->toSQL();
 
-        unset($item, $this->dbcWorker);
+        unset($item);
 
         return substr($output, 0, - strlen(PHP_EOL) - 1) . ';' . PHP_EOL . PHP_EOL;
     }
