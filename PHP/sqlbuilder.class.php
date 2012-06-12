@@ -312,7 +312,7 @@ class SAI
                         $commentType); # Use your own locale here. I do not have english DBCs.
                 }
                 else
-                    $commentType = str_replace('_spellHitSpellId_', $this->data['event_params'][1] . '(Not found in DBCs)', $commentType);
+                    $commentType = str_replace(' _spellHitSpellId_', '', $commentType);
             }
             elseif ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_CAST) {
                 $commentType = str_replace(
