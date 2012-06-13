@@ -1315,6 +1315,16 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (2906,0,1, "Me smash! You die!",12,0,100,0,0,0, "Dustbelcher Warrior"),
 (2906,0,2, "I'll crush you!",12,0,100,0,0,0, "Dustbelcher Warrior");
 
+-- Texts for Servo
+DELETE FROM `creature_text` WHERE `entry`= 2922;
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
+(2922,0,0, "One day I'll be a real boy.",12,0,100,0,0,0, "Servo"),
+(2922,0,1, "Gizmos... check. Doothingies... check. Wizzers... check.",12,0,100,0,0,0, "Servo"),
+(2922,0,2, "It can get really hot here in the Badlands. But at least it's a dry heat.",12,0,100,0,0,0, "Servo"),
+(2922,1,0, "We can make it better, stronger, faster. We have the technology. We have the magic.",12,0,100,0,0,0, "Servo"),
+(2922,1,1, "It is dangerous here, master. But I shall help stand guard.",12,0,100,0,0,0, "Servo"),
+(2922,1,2, "Brzt... click... whir...",12,0,100,0,0,0, "Servo");
+
 -- Texts for Zaricotl
 DELETE FROM `creature_text` WHERE `entry`= 2931;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
@@ -1387,6 +1397,15 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 DELETE FROM `creature_text` WHERE `entry`= 3569;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (3569,0,0, "KILL!!!",12,0,100,0,0,0, "Bogling");
+
+-- Texts for Cerellean Whiteclaw
+DELETE FROM `creature_text` WHERE `entry`= 3644;
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
+(3644,0,0, "Anaya...? Do my eyes deceive me? Is it really you?",12,0,100,0,0,0, "Cerellean Whiteclaw"),
+(3644,1,0, "That fates should be so cruel as to permit us only this after a thousand years apart...",12,0,100,0,0,0, "Cerellean Whiteclaw"),
+(3644,2,0, "Do you hate me, my love? That I was forced to destroy your living form, that your spirit be released from unhappy bondage.",12,0,100,0,0,0, "Cerellean Whiteclaw"),
+(3644,3,0, "No! Anaya... Anaya! Don't leave me! Please...",12,0,100,0,0,0, "Cerellean Whiteclaw"),
+(3644,4,0, "How, my love? How will I find the strength to face the ages of the world without you by my side...",12,0,100,0,0,0, "Cerellean Whiteclaw");
 
 -- Texts for Anaya Dawnrunner
 DELETE FROM `creature_text` WHERE `entry`= 3667;
@@ -1574,6 +1593,11 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (5042,0,1, "Drink this, it will help.",12,0,100,0,0,0, "Nurse Lillian"),
 (5042,0,2, "Let me help you with those.",12,0,100,0,0,0, "Nurse Lillian");
 
+-- Texts for Balos Jacken
+DELETE FROM `creature_text` WHERE `entry`= 5089;
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
+(5089,0,0, "Alright! We Surrender... Just put your weapons down, I'll cooperate",12,0,100,0,0,0, "Balos Jacken");
+
 -- Texts for Unliving Atal'ai
 DELETE FROM `creature_text` WHERE `entry`= 5267;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
@@ -1587,8 +1611,10 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 -- Texts for Jammal'an the Prophet
 DELETE FROM `creature_text` WHERE `entry`= 5710;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
-(5710,0,0, "The Soulflayer comes!",14,0,100,0,0,5862, "Jammal\'an the Prophet"),
-(5710,1,0, "Join us!",14,0,100,0,0,5864, "Jammal\'an the Prophet");
+(5710,0,0, "The shield be down! Rise up Atal'ai! Rise up!",14,0,100,0,0,5861, "Jammal\'an the Prophet"),
+(5710,1,0, "The Soulflayer comes!",14,0,100,0,0,5862, "Jammal\'an the Prophet"),
+(5710,2,0, "Join us!",14,0,100,0,0,5864, "Jammal\'an the Prophet"),
+(5710,3,0, "Hakkar shall live again!",14,0,100,0,0,5865, "Jammal\'an the Prophet");
 
 -- Texts for Dreamscythe
 DELETE FROM `creature_text` WHERE `entry`= 5721;
@@ -1881,6 +1907,11 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 DELETE FROM `creature_text` WHERE `entry`= 10488;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (10488,0,0, "%s becomes enraged!",16,0,100,0,0,0, "Risen Construct");
+
+-- Texts for Kirtonos the Herald
+DELETE FROM `creature_text` WHERE `entry`= 10506;
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
+(10506,0,0, "%s lets out a shrill cry.",16,0,100,0,0,0, "Kirtonos the Herald");
 
 -- Texts for Summoned Blackhand Dreadweaver
 DELETE FROM `creature_text` WHERE `entry`= 10680;
@@ -3543,7 +3574,17 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 -- Texts for Simmer
 DELETE FROM `creature_text` WHERE `entry`= 25416;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
-(25416,0,0, "Who dares?",12,0,100,0,0,0, "Simmer");
+(25416,0,0, "Who dares?",12,0,100,0,0,0, "Simmer"),
+(25416,1,0, "STOP!",12,0,100,0,0,0, "Simmer"),
+(25416,2,0, "Tell Imperean that I will consider a cessation of hostilities. But first, Churn must stop his watery intrusions upon my rise!",12,0,100,0,0,0, "Simmer"),
+(25416,3,0, "I grow bored with you. Begone!",12,0,100,0,0,0, "Simmer");
+
+-- Texts for Churn
+DELETE FROM `creature_text` WHERE `entry`= 25418;
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
+(25418,0,0, "WAIT... NO MORE!",12,0,100,0,0,0, "Churn"),
+(25418,1,0, "I... submit. As long as Simmer agrees to stop boiling my pool, I agree to an armistice.",12,0,100,0,0,0, "Churn"),
+(25418,2,0, "Now, remove yourself from my presence. You would be wise not to come within sight of me again.",12,0,100,0,0,0, "Churn");
 
 -- Texts for Magmoth Shaman
 DELETE FROM `creature_text` WHERE `entry`= 25428;
@@ -3737,7 +3778,12 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 DELETE FROM `creature_text` WHERE `entry`= 27209;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (27209,0,0, "Come to play?",12,0,100,0,0,0, "Torturer LeCraft"),
-(27209,1,0, "AHHHHHHHHH! Please... we know... that you... have a spy... disguised as... one of us! There... that's all that I know. Please... mercy... STOP!",15,0,100,0,0,0, "Torturer LeCraft");
+(27209,1,0, "Ow! I'll tell you NOTHING, filthy $R!",15,0,100,0,0,0, "Torturer LeCraft"),
+(27209,2,0, "Wait... WAIT! What is it that you want to know? I know you're the $C named $N.",15,0,100,0,0,0, "Torturer LeCraft"),
+(27209,3,0, "OW...NO! We know that you've been stealing our armor and weapons and horses!",15,0,100,0,0,0, "Torturer LeCraft"),
+(27209,4,0, "We know... that you don't... know why we're immune... to your so-called blight. Grand Admiral Westwind somehow gave the high abbot that prayer. I beg you... no more... please?",15,0,100,0,0,0, "Torturer LeCraft"),
+(27209,5,0, "AHHHHHHHHH! Please... we know... that you... have a spy... disguised as... one of us! There... that's all that I know. Please... mercy... STOP!",15,0,100,0,0,0, "Torturer LeCraft"),
+(27209,6,0, "AHHHHHHHHH! Please... we know... that you... have a spy... disguised as... one of us! There... that's all that I know. Please... mercy... STOP!",15,0,100,0,0,0, "Torturer LeCraft");
 
 -- Texts for Enraged Apparition
 DELETE FROM `creature_text` WHERE `entry`= 27551;
@@ -3923,6 +3969,12 @@ DELETE FROM `creature_text` WHERE `entry`= 29369;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (29369,0,0, "Your mother was a wench and your father smelt of seaforium!",12,0,100,0,0,0, "Stormforged Taskmaster");
 
+-- Texts for Apprentice Osterkilgr
+DELETE FROM `creature_text` WHERE `entry`= 30409;
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
+(30409,0,0, "You've come for the doctor's plans! You'll only find death!",12,0,100,0,0,0, "Apprentice Osterkilgr"),
+(30409,1,0, "The doctor entrusted me with the plans to Nergeld! I will not fall!",12,0,100,0,0,0, "Apprentice Osterkilgr");
+
 -- Texts for Sapph
 DELETE FROM `creature_text` WHERE `entry`= 30956;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
@@ -3974,6 +4026,12 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 DELETE FROM `creature_text` WHERE `entry`= 34980;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (34980,0,0, "You dare to challenge Drottin Hrothgar, king of the seas?",14,0,100,0,0,0, "Drottinn Hrothgar");
+
+-- Texts for Wilfred Fizzlebang
+DELETE FROM `creature_text` WHERE `entry`= 35476;
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
+(35476,0,0, "Of course I was the one Chosen to summon a demon for the competitors. I am Wilfred Fizzlebang, master summoner! Demons quail before the mere thought of being under my will!",12,0,100,1,0,0, "Wilfred Fizzlebang"),
+(35476,0,1, "Soon all the world will know the name of Wilfred!",12,0,100,1,0,0, "Wilfred Fizzlebang");
 
 -- Texts for Voice of Nozronn
 DELETE FROM `creature_text` WHERE `entry`= 28256;
