@@ -294,12 +294,17 @@ class Utils
                     //! Threat addition has priority over threat reduction!
                     $result[$i] = array(
                         'SAIAction'  => ($eaiAction == ACTION_T_THREAT_SINGLE_PCT ? SMART_ACTION_THREAT_SINGLE_PCT : SMART_ACTION_THREAT_ALL_PCT),
-                        'params'     => array(max(0, $param1), min(0, $param1), 0, 0, 0, 0),
-                        'commentType' => "_npcName_ - _eventName_ - Add "  . $param1 . " Threat"
+                        'params'     => array(max(0, $param1), max(0, -$param1), 0, 0, 0, 0),
+                        'commentType' => "_npcName_ - _eventName_ - "
                     );
                     
                     if (isset($target))
                         $result[$i]['target'] = $target;
+                    
+                    if ($param1 < 0)
+                        $result[$i]['commentType'] .= "Remove " . (- $param1) . '% Threat';
+                    else // if ($param1 > 0)
+                        $result[$i]['commentType'] .= "Add " . (- $param1) . '% Threat';
                     break;
                 case ACTION_T_QUEST_EVENT_ALL:
                 case ACTION_T_QUEST_EVENT:

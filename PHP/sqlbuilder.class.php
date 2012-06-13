@@ -246,9 +246,14 @@ class SAI
 
             #! All EAI actions that have the same event are linked. The first one triggers the second, which triggers the third.
             #! Extra linking, based on parameters sharing between events, should be implemented (See Hogger (#448))
-            if ($i == 1)
-                for ($j = 1; $j <= 4; $j++)
-                    $outputString .= $this->data['event_params'][$j] . ',';
+            if ($i == 1) {
+                for ($j = 1; $j <= 4; $j++) {
+                    if ($j == 2 && ($this->data['event_type'] == SMART_EVENT_SPELLHIT || $this->data['event_type'] == SMART_EVENT_SPELLHIT_TARGET))
+                        $outputString .= '0,';
+                    else
+                        $outputString .= $this->data['event_params'][$j] . ',';
+                }
+            }
             else
                 $outputString .= '0,0,0,0,';
 
