@@ -232,14 +232,14 @@ class Utils
                     $result[$i] = array(
                         'extraData'   => $pdo->query("SELECT * FROM `creature_ai_texts` WHERE `entry` IN (" . $param1 . "," . $param2 . "," . $param3 . ")")->fetchAll(PDO::FETCH_OBJ),
                         'SAIAction'   => SMART_ACTION_TALK,
-                        'params'      => array($param1, $param2, $param3, 0, 0, 0)
+                        'params'      => array($param1, $param2, $param3, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Say Line _lineEntry_"
                     );
                     break;
                 case ACTION_T_SET_FACTION:
                     $result[$i] = array(
                         'SAIAction'   => SMART_ACTION_SET_FACTION,
-                        'params'      => array($param1, $param2, $param3, 0, 0, 0)
+                        'params'      => array($param1, $param2, $param3, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Set Faction " . $param1
                     );
                     break;
@@ -297,7 +297,7 @@ class Utils
                 case ACTION_T_QUEST_EVENT:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Quest Credit"
                     );
                     if ($eaiAction == ACTION_T_QUEST_EVENT)
@@ -307,7 +307,7 @@ class Utils
                 case ACTION_T_CAST_EVENT:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SEND_CASTCREATUREORGO,
-                        'params'     => array($param1, $param2, 0, 0, 0, 0)
+                        'params'     => array($param1, $param2, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Quest Credit"
                     );
                     if ($eaiAction == ACTION_T_CAST_EVENT)
@@ -342,21 +342,21 @@ class Utils
                 case ACTION_T_AUTO_ATTACK:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_AUTO_ATTACK,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Start Auto Attack"
                     );
                     break;
                 case ACTION_T_COMBAT_MOVEMENT:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_ALLOW_COMBAT_MOVEMENT,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Allow Combat Movement"
                     );
                     break;
                 case ACTION_T_SET_PHASE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_EVENT_PHASE,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Set Phase " . $param1
                     );
                     break;
@@ -365,14 +365,14 @@ class Utils
                     return sLog::outString('Tried to cast ACTION_T_INC_PHASE to SMART_ACTION_INC_EVENT_PHASE, but parameters are not totally handled! Aborting');
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_INC_EVENT_PHASE,
-                        'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__)
+                        'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__),
                         'commentType' => "_npcName_ - _eventName_ - Increment Phase"
                     );
                     break;
                 case ACTION_T_EVADE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_EVADE,
-                        'params'     => array(0, 0, 0, 0, 0, 0)
+                        'params'     => array(0, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Evade"
                     );
                     break;
@@ -408,7 +408,7 @@ class Utils
                 case ACTION_T_RANDOM_PHASE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_RANDOM_PHASE,
-                        'params'     => array($param1, $param2, $param3, 0, 0, 0)
+                        'params'     => array($param1, $param2, $param3, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Set Random Phase"
                     );
                     break;
@@ -416,7 +416,7 @@ class Utils
                     //! TODO: Check if EAI is inclusive or exclusive (like SAI)
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_RANDOM_PHASE_RANGE,
-                        'params'     => array($param1, $param2)
+                        'params'     => array($param1, $param2, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Random Phase Range (${param1} - ${param2})" // Because i'm tired of concatenating
                     );
                     break;
@@ -433,7 +433,7 @@ class Utils
                     $result[$i] = array(
                         'extraData'     => $pdo->query("SELECT * FROM `creature_ai_summons` WHERE `id`=" . $param3)->fetch(PDO::FETCH_OBJ),
                         'SAIAction'     => SMART_ACTION_SUMMON_CREATURE,
-                        'params'        => array($param1, 0, 0, 0, 0, 0)
+                        'params'        => array($param1, 0, 0, 0, 0, 0),
                         'commentType'   => "_npcName_ - _eventName_ - Summon Creature " . $pdo->query("SELECT `name` FROM `creature_template` WHERE `entry`=${param1}")->fetch(PDO::FETCH_OBJ)->name,
                         'isSpecialHandler' => true,
                     );
@@ -449,7 +449,7 @@ class Utils
                 case ACTION_T_SET_INST_DATA:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_INST_DATA,
-                        'params'     => array($param1, $param2)
+                        'params'     => array($param1, $param2, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Set Instance Data ${param1} to ${param2}"
                     );
                     break;
@@ -464,35 +464,35 @@ class Utils
                 case ACTION_T_UPDATE_TEMPLATE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_UPDATE_TEMPLATE,
-                        'params'     => array($param1, $param2, 0, 0, 0, 0)
+                        'params'     => array($param1, $param2, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Update Template"
                     );
                     break;
                 case ACTION_T_DIE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_DIE,
-                        'params'     => array(0, 0, 0, 0, 0, 0)
+                        'params'     => array(0, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Die"
                     );
                     break;
                 case ACTION_T_ZONE_COMBAT_PULSE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_IN_COMBAT_WITH_ZONE,
-                        'params'     => array(0, 0, 0, 0, 0, 0)
+                        'params'     => array(0, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Set In Combat With Zone"
                     );
                     break;
                 case ACTION_T_CALL_FOR_HELP:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_CALL_FOR_HELP,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Call For Help"
                     );
                     break;
                 case ACTION_T_SET_SHEATH:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_SHEATH,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - "
                     );
 
@@ -512,21 +512,21 @@ class Utils
                 case ACTION_T_FORCE_DESPAWN:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_FORCE_DESPAWN,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Forced Despawn"
                     );
                     break;
                 case ACTION_T_SET_INVINCIBILITY_HP_LEVEL:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Set Invincibility Health Pct To " . $param1
                     );
                     break;
                 case ACTION_T_MOUNT_TO_ENTRY_OR_MODEL:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL,
-                        'params'     => array($param1, $param2, 0, 0, 0, 0)
+                        'params'     => array($param1, $param2, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Mount Up"
                     );
 
@@ -536,7 +536,7 @@ class Utils
                 case ACTION_T_SET_PHASE_MASK:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_INGAME_PHASE_MASK,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Set Phase"
                     );
                     break;
@@ -551,14 +551,14 @@ class Utils
                 case ACTION_T_MOVE_RANDOM_POINT:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_RANDOM_MOVE,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Move Random"
                     );
                     break;
                 case ACTION_T_SET_VISIBILITY:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_VISIBILITY,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Set Visiblity"
                     );
                     break;
@@ -566,35 +566,35 @@ class Utils
                     //! SAI has no parameter and cannot set a NPC as inactive!
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_ACTIVE,
-                        'params'     => array(0, 0, 0, 0, 0, 0)
+                        'params'     => array(0, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Set Active"
                     );
                     break;
                 case ACTION_T_SET_AGGRESSIVE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SET_REACT_STATE,
-                        'params'     => array($param1, 0, 0, 0, 0, 0)
+                        'params'     => array($param1, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Set React Aggressive"
                     );
                     break;
                 case ACTION_T_ATTACK_START_PULSE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_ATTACK_START,
-                        'params'     => array(0, 0, 0, 0, 0, 0)
+                        'params'     => array(0, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Attack Start"
                     );
                     break;
                 case ACTION_T_SUMMON_GO:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SUMMON_GO,
-                        'params'     => array($param1, $param2, 0, 0, 0, 0)
+                        'params'     => array($param1, $param2, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Summon Gameobject " . $pdo->query("SELECT name FROM gameobject_template WHERE entry = ${param1}")->fetch(PDO::FETCH_OBJ)->name
                     );
                     break;
                 case ACTION_T_NONE:
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_NONE,
-                        'params'     => array(0, 0, 0, 0, 0, 0)
+                        'params'     => array(0, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - UNUSED"
                     );
                     break;
@@ -606,7 +606,7 @@ class Utils
                 default:
                     $result[$i] = array(
                         'SAIAction'  => __FIXME__,
-                        'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__)
+                        'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__),
                         'commentType' => "_npcName_ - _eventName_ - Y me not working ??? :("
                     );
                     break;

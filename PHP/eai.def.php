@@ -30,7 +30,7 @@ define('EVENT_T_FRIENDLY_MISSING_BUFF',   16); // SpellId, Radius, RepeatMin, Re
 define('EVENT_T_SUMMONED_UNIT',           17); // CreatureId, RepeatMin, RepeatMax
 define('EVENT_T_TARGET_MANA',             18); // ManaMax%, ManaMin%, RepeatMin, RepeatMax
 define('EVENT_T_QUEST_ACCEPT',            19); // QuestID
-define('EVENT_T_QUEST_COMPLETE',          20); //
+define('EVENT_T_QUEST_COMPLETE',          20); // 
 define('EVENT_T_REACHED_HOME',            21); // NONE
 define('EVENT_T_RECEIVE_EMOTE',           22); // EmoteId, Condition, CondValue1, CondValue2
 define('EVENT_T_BUFFED',                  23); // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 Repeat Min/Max

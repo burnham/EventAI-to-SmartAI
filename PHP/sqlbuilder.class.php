@@ -271,7 +271,7 @@ class SAI
                 $outputString .= $summonData->orientation . ',';
             }
             else
-                $outputString .= ',0,0,0,0,0,0,0,';
+                $outputString .= '0,0,0,0,0,0,0,';
 
             # Build the comment, and we're done.
             
@@ -301,29 +301,32 @@ class SAI
             $commentType = str_replace('_lineEntry_', $this->data['actions'][$actionIndex]['params'][0], $commentType);
         }
 
-        if ($this->_parent->dumpSpells) {
-            // Prevent unnecessary processing
+        // Any DBC-needed data is dumped here
+        if (($factory = Factory::createOrGetDBCWorker()) !== false) {
+            // Place event precessors here
             if ($this->data['event_type'] == SMART_EVENT_SPELLHIT || $this->data['event_type'] == SMART_EVENT_SPELLHIT_TARGET) {
                 // For some bitch reason, some spellhit events have 0 as the spell hitter
                 if ($this->data['event_params'][1] != 0) {
                     $commentType = str_replace(
                         '_spellHitSpellId_',
-                        Factory::createOrGetDBCWorker()->getRecordById($this->data['event_params'][1])->get('SpellNameLang0', DBC::STRING),
+                        $factory->getRecordById($this->data['event_params'][1])->get('SpellNameLang0', DBC::STRING),
                         $commentType); # Use your own locale here. I do not have english DBCs.
                 }
                 else
                     $commentType = str_replace(' _spellHitSpellId_', '', $commentType);
             }
-            elseif ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_CAST) {
+            
+            // Place action processors here
+            if ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_CAST) {
                 $commentType = str_replace(
                     '_castSpellId_',
-                    Factory::createOrGetDBCWorker()->getRecordById($this->data['actions'][$actionIndex]['params'][0])->get('SpellNameLang0', DBC::STRING),
+                    $factory->getRecordById($this->data['actions'][$actionIndex]['params'][0])->get('SpellNameLang0', DBC::STRING),
                     $commentType);
             }
             elseif ($this->data['actions'][$actionIndex]['SAIAction'] == SMART_ACTION_REMOVEAURASFROMSPELL && $this->data['actions'][$actionIndex]['params'][0] != 0) {
                 $commentType = str_replace(
                     '_removeAuraSpell_',
-                    Factory::createOrGetDBCWorker()->getRecordById($this->data['actions'][$actionIndex]['params'][0])->get('SpellNameLang0', DBC::STRING),
+                    $factory->getRecordById($this->data['actions'][$actionIndex]['params'][0])->get('SpellNameLang0', DBC::STRING),
                     $commentType);
             }
         }
