@@ -369,13 +369,16 @@ class Utils
                     );
                     break;
                 case ACTION_T_INC_PHASE:
-                    //! EAI uses only one parameter. SAI uses two: first, we decrease, then we increase. I don't get the difference.
-                    sLog::outString('Tried to cast ACTION_T_INC_PHASE to SMART_ACTION_INC_EVENT_PHASE, but parameters are not totally handled! Aborting');
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_INC_EVENT_PHASE,
-                        'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__),
+                        'params'     => array(0, 0, 0, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Increment Phase"
                     );
+                    
+                    if ($param1 < 0)
+                        $result[$i]['params'][1] = -$param1;
+                    else // if ($param1 > 0)
+                        $result[$i]['params'][0] = $param1;
                     break;
                 case ACTION_T_EVADE:
                     $result[$i] = array(
