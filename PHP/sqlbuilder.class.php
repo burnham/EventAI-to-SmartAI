@@ -202,6 +202,7 @@ class SAI
         $outputString = '';
 
         // Fast-remove all flee emotes
+        // Need to be done before processing, else linking is fooked
         foreach ($this->data['actions'] as $i => $action)
             if ($action['SAIAction'] == SMART_ACTION_TALK && $action['params'][0] == -47)
                 unset($this->data['actions'][$i]);

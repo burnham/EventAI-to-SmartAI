@@ -129,7 +129,7 @@ class Utils
             case SMART_EVENT_TARGET_CASTING:
                 return "On Target Casting";
             case SMART_EVENT_FRIENDLY_HEALTH:
-                return "On Friendly Unit At ${param1}% Health";
+                return "On Friendly Unit Between ${param1} and ${param2}% Health";
             case SMART_EVENT_FRIENDLY_IS_CC:
                 return "On Friendly Unit In CC";
             case SMART_EVENT_FRIENDLY_MISSING_BUFF:
