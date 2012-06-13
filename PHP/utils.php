@@ -646,7 +646,7 @@ class sLog
     private function __construct() { }
 
     static function outString($msg) {
-        if ($handle = fopen('dbErrors.log', 'w+')) {
+        if ($handle = fopen('dbErrors.log', 'a')) {
             fwrite($handle, date('d/m/Y H:i:s :: ') . $msg . PHP_EOL);
             fclose($handle);
         }
