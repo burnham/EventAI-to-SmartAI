@@ -119,16 +119,22 @@ class Utils
             case SMART_EVENT_SPELLHIT:
                 return "On Spellhit _spellHitSpellId_";
             case SMART_EVENT_RANGE:
-                return "At ${param1} - ${param2} range";
+                if ($param1 == 0)
+                    return "At ${param2} yds range";
+                return "From ${param1} to ${param2} yds range";
             case SMART_EVENT_OOC_LOS:
                 return "On LOS Out Of Combat";
             case SMART_EVENT_RESPAWN:
                 return "On Respawn";
             case SMART_EVENT_TARGET_HEALTH_PCT:
-                return "On Target Health Below ${param2}%";
+                if ($param1 == 0)
+                    return "On Target Health Below ${param2}%";
+                return "On Target Health Between ${param1} and ${param2}%";
             case SMART_EVENT_TARGET_CASTING:
                 return "On Target Casting";
             case SMART_EVENT_FRIENDLY_HEALTH:
+                if ($param1 == 0)
+                    return "On Friendly Unit Below ${param2}$ Health";
                 return "On Friendly Unit Between ${param1} and ${param2}% Health";
             case SMART_EVENT_FRIENDLY_IS_CC:
                 return "On Friendly Unit In CC";
@@ -137,7 +143,9 @@ class Utils
             case SMART_EVENT_SUMMONED_UNIT:
                 return "On Summoned Unit";
             case SMART_EVENT_TARGET_MANA_PCT:
-                return "On Target At ${param1}% Mana";
+                if ($param1 == 0)
+                    return "On Target Below ${param2}% Mana";
+                return "On Target Between ${param1} and ${param2}% Mana";
             case SMART_EVENT_ACCEPTED_QUEST:
                 return "On Quest Accept";
             case SMART_EVENT_REWARD_QUEST:
@@ -148,7 +156,7 @@ class Utils
                 return "Received Emote";
             case SMART_EVENT_HAS_AURA:
                 if ($param1 < 0)
-                    return "Aura _hasAuraSpellId_ Not Present";
+                    return "On Aura _hasAuraSpellId_ Not Present";
                 return "On Aura _hasAuraSpellId_ Present";
             case SMART_EVENT_TARGET_BUFFED:
                 return "On Target Buffed";
