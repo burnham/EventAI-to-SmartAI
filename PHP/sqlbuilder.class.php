@@ -271,11 +271,11 @@ class SAI
                 $outputString .= $summonData->orientation . ',';
             }
             else
-                $outputString .= $this->data['actions'][$i]['target'] . ',0,0,0,0,0,0,0,';
+                $outputString .= ',0,0,0,0,0,0,0,';
 
             # Build the comment, and we're done.
             
-            $outputString .= ' "' . $this->buildComment($action['commentType'], $i) . '"';
+            $outputString .= '"' . $this->buildComment($action['commentType'], $i) . '"';
 
             $outputString .= '),' . PHP_EOL;
 
