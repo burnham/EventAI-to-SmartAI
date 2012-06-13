@@ -31,6 +31,8 @@ if ($iniFile = parse_ini_file('config.ini')) {
         echo PHP_EOL . '>> Spell.dbc will be parsed.' . PHP_EOL;
 }
 
+unset($dumpSpellNames);
+
 ob_start();
 echo PHP_EOL . 'Selecting all EventAIs from the database ...' . PHP_EOL;
 ob_end_flush();
@@ -89,7 +91,8 @@ foreach ($npcStore as $npcId => $npcObj) {
     sLog::outSpecificFile('creature_texts_v2.sql', $npcObj->getCreatureText());
     sLog::outSpecificFile('smart_scripts_v2.sql', $npcObj->getSmartScripts());
     
-    unset($npcObj);
+    // Free memory on the fly
+    unset($npcStore[$npcId], $npcId, $npcObj);
 
     ob_start();
     $pct = (++$itr) * 100 / $storeSize;
@@ -98,7 +101,7 @@ foreach ($npcStore as $npcId => $npcObj) {
     ob_end_flush();
 }
 
-unset($npcId, $npcObj, $itr, $npcStore, $storeSize, $npcName, $iniFile); // Prevent garbage collection mishaps
+unset($pct, $itr, $npcObj, $npcId, $npcStore);
 
 echo PHP_EOL . 'Finished parsing data in ' . round(microtime(true) - $oldDate, 4) . ' ms!' . PHP_EOL;
 
