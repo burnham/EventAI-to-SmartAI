@@ -5,17 +5,17 @@ class NPC
     private $sai = array();
     private $eai = array();
     private $texts = array();
-    private $pdo;
+
     public  $npcId;
     public  $npcName;
+
     private $textGroupId = 0;
     private $textId      = 0;
     private $saiItemId   = 0;
     private $linkItr     = 0;
     private $eventCache  = array();
 
-    public function __construct($pdo, $npcId, $npcName) {
-        $this->pdo        = $pdo;
+    public function __construct($npcId, $npcName) {
         $this->npcId      = $npcId;
         $this->npcName    = $npcName;
         $this->saiItemId  = 0;
@@ -83,7 +83,7 @@ class NPC
 
     public function convertAllToSAI() {
         foreach ($this->eai as $eaiItem)
-            $this->addSAI($eaiItem->toSAI($this->pdo));
+            $this->addSAI($eaiItem->toSAI());
         unset($this->eai); // Save some memory
     }
 
@@ -201,16 +201,12 @@ class SAI
 
         $outputString = '';
 
-        for ($i = 1; $i <= 3; $i++) {
-            if (!isset($this->data['actions'][$i]))
-                break;
-
-            $action = $this->data['actions'][$i];
-
-            // Ignore flee emote actions
+        // Fast-remove all flee emotes
+        foreach ($this->data['actions'] as $i => $action)
             if ($action['SAIAction'] == SMART_ACTION_TALK && $action['params'][0] == -47)
-                continue;
+                unset($this->data['actions'][$i]);
 
+        foreach ($this->data['actions'] as $i => $action) {
             // Found an empty action. Means no action's following.
             //! Note: Invalid for TWO EAIs. Fix them by hand before running this script.
             //! SELECT * FROM creature_ai_scripts WHERE action1_type= 0 AND (action2_type != 0 OR action3_type != 0);
@@ -221,9 +217,11 @@ class SAI
             $outputString .= $this->data['source_type'] . ',';
             $outputString .= $this->_parent->getSaiIndex() . ',';
 
+            $linked = false;
             if ($this->_parent->hasEventInCache($this->data) || (isset($this->data['actions'][$i + 1]) && count($this->data['actions'][$i + 1]) != 0)) {
                 $this->_parent->increaseLinkIndex();
                 $outputString .= $this->_parent->getLinkIndex() . ',' . $this->data['event_type'] . ',';
+                $linked = true;
             }
             else
             {
@@ -235,14 +233,15 @@ class SAI
                         $outputString .= '0,' . $this->data['event_type'] . ',';
                     else
                         $outputString .= '0,' . SMART_EVENT_LINK . ',';
+                    $linked = ($i != 1);
                 }
             }
 
             # Writing event type, phase, chance, flags and parameters
-
-            $outputString .= $this->data['event_phase'] . ',';
-            $outputString .= $this->data['event_chance'] . ',';
-            $outputString .= $this->data['event_flags'] . ',';
+            if (!$linked)
+                $outputString .= $this->data['event_phase'] . ',' . $this->data['event_chance'] . ',' . $this->data['event_flags'] . ',';
+            else // Linked events cannot happen on their own, avoid unnecessary checks core-side.
+                $outputString .= '0,100,0,';
 
             #! All EAI actions that have the same event are linked. The first one triggers the second, which triggers the third.
             #! Extra linking, based on parameters sharing between events, should be implemented (See Hogger (#448))
@@ -353,7 +352,7 @@ class EAI
         $this->_parent = $parent;
     }
 
-    public function toSAI($pdoDriver) {
+    public function toSAI() {
         $saiData = array();
         $saiData['entryorguid']  = intval($this->_eaiItem->npcId);
         $saiData['npcName']      = $this->_eaiItem->npcName;
@@ -365,19 +364,19 @@ class EAI
         
         $saiData['event_params'] = Utils::convertParamsToSAI($this->_eaiItem);
 
-        $saiData['actions']      = Utils::buildSAIAction($this->_eaiItem, $pdoDriver);
-        
+        $saiData['actions']      = Utils::buildSAIAction($this->_eaiItem);
+
+        if (!is_array($saiData['actions'])) {
+            echo PHP_EOL . 'FATAL ERROR! Utils::buildSAIAction() did NOT return an array... Investigate this fucking crap, please.' . PHP_EOL;
+            exit(1);
+        }
+
         # Build target data
         $saiData['targetData']   = array(
             'target_type' => SMART_TARGET_NONE,
             'position'    => array(),
             'spawnTimeSecs' => 0
         );
-
-        // For some awkward reason, $saiData['actions'] can become NULL.
-        // foreach ($saiData['actions'] as $i => &$actionArray) {
-        // for ($i = 1; $i <= 3; $i++) {
-        // }
 
         $saiData['event_phase']  = Utils::generateSAIPhase($this->_eaiItem->event_inverse_phase_mask);
 

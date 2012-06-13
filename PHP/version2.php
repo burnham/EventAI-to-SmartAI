@@ -2,6 +2,7 @@
 ini_set('memory_limit', "148M"); // That shouldnt be a problem, default is 128MB and the script peakes at around 140Mb.
 
 require_once('./utils.php');
+require_once('./factory.php');
 
 # ############# DO NOT EDIT PAST THIS LINE, UNLESS YOU KNOW WHAT YOU ARE DOING ############# #
 
@@ -19,33 +20,15 @@ echo "http://TrinityCore.org                    \\/__/\n" . PHP_EOL;
 ob_end_flush();
 
 
-$host = 'localhost';
-$dbName = 'world';
-$username = 'root';
-$password = '';
 $dumpSpellNames = false;
 if ($iniFile = parse_ini_file('config.ini')) {
-    $host = $iniFile['hostname'];
-    $dbName = $iniFile['worldDatabase'];
-    $username = $iniFile['userName'];
-    $password = $iniFile['password'];
+    Factory::setDbData($iniFile['hostname'], $iniFile['userName'], $iniFile['password'], $iniFile['worldDatabase']);
 
     echo '>> Config file found and parsed sucessfully.' . PHP_EOL;
 
     $dumpSpellNames = (isset($iniFile['dumpSpellNames']) && $iniFile['dumpSpellNames'] == 1);
     if ($dumpSpellNames)
-    {
-        require_once('./factory.php');
-        echo PHP_EOL . '>> Spell.dbc parser loaded.' . PHP_EOL;
-    }
-}
-
-
-try {
-    $pdoOptions[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-    $pdo = new PDO('mysql:host=' . $host . ';dbname=' . $dbName, $username, $password, $pdoOptions);
-} catch (Exception $e) {
-    die("Error while connecting to the database. Message sent by PDO: " . $e->getMessage());
+        echo PHP_EOL . '>> Spell.dbc will be parsed.' . PHP_EOL;
 }
 
 ob_start();
@@ -53,7 +36,7 @@ echo PHP_EOL . 'Selecting all EventAIs from the database ...' . PHP_EOL;
 ob_end_flush();
 
 $oldDate = microtime(true);
-$EAIDataSet = $pdo->query("SELECT * FROM creature_ai_scripts ORDER BY id")->fetchAll(PDO::FETCH_OBJ);
+$EAIDataSet = Factory::createOrGetDBHandler()->query("SELECT * FROM creature_ai_scripts ORDER BY id")->fetchAll(PDO::FETCH_OBJ);
 
 ob_start();
 echo '>> Gotten ' . count($EAIDataSet) . ' entries in ' . round(microtime(true) - $oldDate, 4) . ' ms' . PHP_EOL;
@@ -70,9 +53,9 @@ $oldDate   = microtime(true);
 foreach ($EAIDataSet as $eaiItem) {
     if ($npcId != $eaiItem->creature_id) {
         # New NPC. Create a corresponding NPC class instance.
-        $npcName   = $pdo->query('SELECT name FROM creature_template WHERE entry = ' . $eaiItem->creature_id)->fetch(PDO::FETCH_OBJ)->name;
+        $npcName   = Factory::createOrGetDBHandler()->query('SELECT name FROM creature_template WHERE entry = ' . $eaiItem->creature_id)->fetch(PDO::FETCH_OBJ)->name;
         $npcId     = $eaiItem->creature_id;
-        $npcStore[$npcId] = new NPC($pdo, $npcId, $npcName);
+        $npcStore[$npcId] = new NPC($npcId, $npcName);
     }
 
     $eaiItem->npcName = $npcName;
@@ -115,7 +98,7 @@ foreach ($npcStore as $npcId => $npcObj) {
     ob_end_flush();
 }
 
-unset($npcId, $npcObj, $itr, $npcStore, $storeSize, $npcName, $pdo, $host, $dbName, $user, $password, $iniFile, $pdoOptions); // Prevent garbage collection mishaps
+unset($npcId, $npcObj, $itr, $npcStore, $storeSize, $npcName, $iniFile); // Prevent garbage collection mishaps
 
 echo PHP_EOL . 'Finished parsing data in ' . round(microtime(true) - $oldDate, 4) . ' ms!' . PHP_EOL;
 

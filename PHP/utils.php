@@ -213,7 +213,7 @@ class Utils
         return array_map('intval', $data);
     }
     
-    static function buildSAIAction($eaiItem, $pdo) {
+    static function buildSAIAction($eaiItem) {
         $result = array();
 
         for ($i = 1; $i <= 3; $i++) {
@@ -230,7 +230,7 @@ class Utils
             {
                 case ACTION_T_TEXT:
                     $result[$i] = array(
-                        'extraData'   => $pdo->query("SELECT * FROM `creature_ai_texts` WHERE `entry` IN (" . $param1 . "," . $param2 . "," . $param3 . ")")->fetchAll(PDO::FETCH_OBJ),
+                        'extraData'   => Factory::createOrGetDBHandler()->query("SELECT * FROM `creature_ai_texts` WHERE `entry` IN (" . $param1 . "," . $param2 . "," . $param3 . ")")->fetchAll(PDO::FETCH_OBJ),
                         'SAIAction'   => SMART_ACTION_TALK,
                         'params'      => array($param1, $param2, $param3, 0, 0, 0),
                         'commentType' => "_npcName_ - _eventName_ - Say Line _lineEntry_"
@@ -362,7 +362,7 @@ class Utils
                     break;
                 case ACTION_T_INC_PHASE:
                     //! EAI uses only one parameter. SAI uses two: first, we decrease, then we increase. I don't get the difference.
-                    return sLog::outString('Tried to cast ACTION_T_INC_PHASE to SMART_ACTION_INC_EVENT_PHASE, but parameters are not totally handled! Aborting');
+                    sLog::outString('Tried to cast ACTION_T_INC_PHASE to SMART_ACTION_INC_EVENT_PHASE, but parameters are not totally handled! Aborting');
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_INC_EVENT_PHASE,
                         'params'     => array(__FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__, __FIXME__),
@@ -426,15 +426,15 @@ class Utils
                         'SAIAction'     => SMART_ACTION_SUMMON_CREATURE,
                         'params'        => array($param1, 1, $param3, 0, 0, 0),
                         'target'        => $param2 + 1,
-                        'commentType'   => "_npcName_ - _eventName_ - Summon Creature " . $pdo->query("SELECT `name` FROM `creature_template` WHERE `entry`=${param1}")->fetch(PDO::FETCH_OBJ)->name
+                        'commentType'   => "_npcName_ - _eventName_ - Summon Creature " . Factory::createOrGetDBHandler()->query("SELECT `name` FROM `creature_template` WHERE `entry`=${param1}")->fetch(PDO::FETCH_OBJ)->name
                     );
                     break;
                 case ACTION_T_SUMMON_ID:
                     $result[$i] = array(
-                        'extraData'     => $pdo->query("SELECT * FROM `creature_ai_summons` WHERE `id`=" . $param3)->fetch(PDO::FETCH_OBJ),
+                        'extraData'     => Factory::createOrGetDBHandler()->query("SELECT * FROM `creature_ai_summons` WHERE `id`=" . $param3)->fetch(PDO::FETCH_OBJ),
                         'SAIAction'     => SMART_ACTION_SUMMON_CREATURE,
                         'params'        => array($param1, 0, 0, 0, 0, 0),
-                        'commentType'   => "_npcName_ - _eventName_ - Summon Creature " . $pdo->query("SELECT `name` FROM `creature_template` WHERE `entry`=${param1}")->fetch(PDO::FETCH_OBJ)->name,
+                        'commentType'   => "_npcName_ - _eventName_ - Summon Creature " . Factory::createOrGetDBHandler()->query("SELECT `name` FROM `creature_template` WHERE `entry`=${param1}")->fetch(PDO::FETCH_OBJ)->name,
                         'isSpecialHandler' => true,
                     );
                     break;
@@ -588,7 +588,7 @@ class Utils
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_SUMMON_GO,
                         'params'     => array($param1, $param2, 0, 0, 0, 0),
-                        'commentType' => "_npcName_ - _eventName_ - Summon Gameobject " . $pdo->query("SELECT name FROM gameobject_template WHERE entry = ${param1}")->fetch(PDO::FETCH_OBJ)->name
+                        'commentType' => "_npcName_ - _eventName_ - Summon Gameobject " . Factory::createOrGetDBHandler()->query("SELECT name FROM gameobject_template WHERE entry = ${param1}")->fetch(PDO::FETCH_OBJ)->name
                     );
                     break;
                 case ACTION_T_NONE:
