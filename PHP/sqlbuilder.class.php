@@ -285,9 +285,10 @@ class SAI
             $outputString .= '),' . PHP_EOL;
 
             $this->_parent->increaseSaiIndex();
+
+            if ($i == 1)
+                $this->_parent->addEventToCache($this->data);
         }
-        
-        $this->_parent->addEventToCache($this->data);
 
         return $outputString;
     }
