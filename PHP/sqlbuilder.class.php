@@ -219,7 +219,8 @@ class SAI
             $outputString .= $this->_parent->getSaiIndex() . ',';
 
             $linked = false;
-            if ($this->_parent->hasEventInCache($this->data) || (isset($this->data['actions'][$i + 1]) && count($this->data['actions'][$i + 1]) != 0)) {
+            if ($this->_parent->hasEventInCache($this->data)
+                || (isset($this->data['actions'][$i + 1]) && count($this->data['actions'][$i + 1]) != 0)) {
                 $this->_parent->increaseLinkIndex();
                 $outputString .= $this->_parent->getLinkIndex() . ',' . $this->data['event_type'] . ',';
                 $linked = true;
@@ -285,10 +286,9 @@ class SAI
             $outputString .= '),' . PHP_EOL;
 
             $this->_parent->increaseSaiIndex();
-
-            if ($i == 1)
-                $this->_parent->addEventToCache($this->data);
         }
+        
+        $this->_parent->addEventToCache($this->data);
 
         return $outputString;
     }
