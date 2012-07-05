@@ -74,7 +74,8 @@ class NPC
     public function hasEventInCache($event) {
         foreach ($this->eventCache as $item)
             if ($item['type']         == $event['event_type']      && $item['phase']     == $event['event_phase']
-                && $item['flags']     == $event['event_flags']     && $item['chance']    == $event['event_chance']
+                && ($item['flags']    == $event['event_flags']     || $item['flags']     <= 1)
+                && $item['chance']    == $event['event_chance']
                 && $item['params'][1] == $event['event_params'][1] && $item['params'][2] == $event['event_params'][2]
                 && $item['params'][3] == $event['event_params'][3] && $item['params'][4] == $event['event_params'][4])
                 return true;
