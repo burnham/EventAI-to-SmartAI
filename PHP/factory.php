@@ -9,10 +9,15 @@ class Factory
     private static $username = 'root';
     private static $password = '';
     private static $dbName   = '335_world';
+    
+    private static $_isDbcOn = true;
 
     private function __construct() { }
 
     public static function createOrGetDBCWorker() {
+        if (!self::$_isDbcOn)
+            return null;
+    
         if (!isset(self::$dbcWorker))
             self::$dbcWorker = new DBC('./dep/dbcs/Spell.dbc', DBCMap::fromINI('./dep/maps/Spell.ini'));
         
@@ -33,4 +38,13 @@ class Factory
         self::$password = $pass;
         self::$dbName   = $database;
     }
+    
+    public static function getSpellNameForLoc($spellId, $locIndex) {
+        if (!self::$_isDbcOn)
+            return $spellId;
+        return self::$dbcWorker->getRecordById($spellId)->get('SpellNameLang' . $locIndex, DBC::STRING);
+    }
+    
+    public static function toggleDbcWorker($apply) { self::$_isDbcOn = $apply; }
+    public static function hasDbcWorker() { return self::$dbcWorker !== null; }
 };

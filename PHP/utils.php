@@ -390,7 +390,7 @@ class Utils
                     //! on fleeing.
                     $result[$i] = array(
                         'SAIAction'  => SMART_ACTION_FLEE_FOR_ASSIST,
-                        'params'     => array(0, 0, 0, 0, 0, 0), # The 1 means we will also say "%s flees blabla".
+                        'params'     => array(0, 0, 0, 0, 0, 0),
                         'target'     => SMART_TARGET_NONE,
                         'commentType' => "_npcName_ - _eventName_ - Flee For Assist"
                     );
@@ -623,7 +623,7 @@ class Utils
             if (!isset($result[$i]['isSpecialHandler']))
                 $result[$i]['isSpecialHandler'] = false;
 
-            if (!isset($result[$i]['target']))
+            if (!isset($result[$i]['target'])) // Default target
                 $result[$i]['target'] = SMART_TARGET_SELF;
         }
 
@@ -632,7 +632,7 @@ class Utils
 
     static function generateSAIPhase($eaiPhase) {
         //! Not sure if this how it should behave. EAI uses phases to force events NOT TO happen in phases. It means they happen in ~$phase to me.
-        //! Except for 0. (Seems kind of idiot for an event to never happen.)
+        //! Except for 0. (Seems kind of idiot for an event to never happen.) If 0, even always happen.
         //! Sample output: 0b100 inverted is 0b011 (4 => 3)
         if ($eaiPhase == 0)
             return 0;
