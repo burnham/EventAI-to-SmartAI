@@ -20,7 +20,6 @@ echo "http://TrinityCore.org                    \\/__/\n" . PHP_EOL;
 ob_end_flush();
 
 
-$dumpSpellNames = false;
 if ($iniFile = parse_ini_file('config.ini')) {
     Factory::setDbData($iniFile['hostname'], $iniFile['userName'], $iniFile['password'], $iniFile['worldDatabase']);
 
@@ -29,9 +28,8 @@ if ($iniFile = parse_ini_file('config.ini')) {
     $dumpSpellNames = (isset($iniFile['dumpSpellNames']) && $iniFile['dumpSpellNames'] == 1);
     if ($dumpSpellNames)
         echo PHP_EOL . '>> Spell.dbc will be parsed.' . PHP_EOL;
+    Factory::toggleDbcWorker($dumpSpellNames);
 }
-
-unset($dumpSpellNames);
 
 ob_start();
 echo PHP_EOL . 'Selecting all EventAIs from the database ...' . PHP_EOL;
